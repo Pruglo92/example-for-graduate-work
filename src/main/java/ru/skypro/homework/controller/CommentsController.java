@@ -17,8 +17,11 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/ads")
 @Tag(name = "Комментарии")
+@RequiredArgsConstructor
 @Validated
 public class CommentsController {
+
+    private final CommentService commentService;
     @DeleteMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Удаление комментария в объявлении",
             description = "Удаление комментария по id объявления и id комментария авторизованным пользователем")
@@ -52,6 +55,9 @@ public class CommentsController {
         CommentDto newCommentDto = new CommentDto(1, "imagePath",
                 "authorFirstName", (long) 100500, 1, createOrUpdateCommentDto.text());
         return ResponseEntity.ok(newCommentDto);
+                                                     @RequestBody CreateOrUpdateCommentDto createOrUpdateCommentDto,
+                                                     Authentication authentication) {
+        return ResponseEntity.ok(commentService.addCommentToAd(adId, createOrUpdateCommentDto, authentication));
     }
 
     @PatchMapping("/{adId}/comments/{commentId}")
@@ -63,7 +69,7 @@ public class CommentsController {
     @ApiResponse(responseCode = "404", description = "Not found")
     public ResponseEntity<CommentDto> updateCommentToAd(@PathVariable("adId") Integer adId,
                                                         @PathVariable("commentId") Integer commentId,
-                                                        @RequestBody @Valid CreateOrUpdateCommentDto createOrUpdateCommentDto) {
+                                                        @RequestBody CreateOrUpdateCommentDto createOrUpdateCommentDto) {
         CommentDto updatedCommentDto = new CommentDto(1, "imagePath",
                 "authorFirstName", (long) 100500, 1, createOrUpdateCommentDto.text());
         return ResponseEntity.ok(updatedCommentDto);
