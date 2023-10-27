@@ -1,7 +1,6 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +35,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     public void removeComment(Integer adId, Integer commentId, Authentication authentication) {
-        Comment comment = commentRepository.findByAdIdAndCommentId(adId, commentId);
+        Comment comment = commentMapper.deleteCommentDtoToEntity(adId,commentId,authentication);
         if (comment == null) {
             throw new CommentNotFoundException();
         }
-        commentRepository.delete(comment);
+            commentRepository.delete(comment);
     }
 
 
