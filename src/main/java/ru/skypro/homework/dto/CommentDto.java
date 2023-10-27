@@ -1,6 +1,8 @@
 package ru.skypro.homework.dto;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Size;
 
 public record CommentDto(
 
@@ -19,5 +21,5 @@ public record CommentDto(
             @NotBlank(message = "Текст комментария не может быть пустым")
             @Size(min = 2, max = 64, message = "Текст комментария должно быть от 8 до 64 символов")
             String text
-    ) {
+    )  {
     }

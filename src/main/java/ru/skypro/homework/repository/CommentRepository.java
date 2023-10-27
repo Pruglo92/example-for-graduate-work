@@ -10,6 +10,4 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
-
-    void delete(CommentDto commentDto);
 }

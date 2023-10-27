@@ -41,7 +41,7 @@ public abstract class CommentMapper {
     @Mapping(target = "user", expression = "java(getUserFromAuthentication(authentication))")
     @Mapping(target = "ad", expression = "java(getAdByAdId(adId))")
     public abstract Comment createOrUpdateCommentDtoToEntity(Integer adId, CreateOrUpdateCommentDto createOrUpdateCommentDto, Authentication authentication);
-    @Mapping(target = "pk", expression = "java(comment.getId())")
+
     @Mapping(target = "user", expression = "java(getUserFromAuthentication(authentication))")
     @Mapping(target = "ad", expression = "java(getAdByAdId(adId))")
     public abstract Comment deleteCommentDtoToEntity(Integer adId, Integer commentId, Authentication authentication);
