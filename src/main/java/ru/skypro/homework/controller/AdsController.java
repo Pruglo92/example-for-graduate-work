@@ -14,7 +14,7 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.service.impl.AdServiceImpl;
+import ru.skypro.homework.service.AdService;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 
 public class AdsController {
-    private final AdServiceImpl adService;
+    private final AdService adService;
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удаление объявления",
