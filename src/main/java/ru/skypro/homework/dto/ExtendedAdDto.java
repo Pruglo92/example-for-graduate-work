@@ -2,8 +2,18 @@ package ru.skypro.homework.dto;
 
 import javax.validation.constraints.*;
 
+/**
+ * @param pk              id объявления
+ * @param authorFirstName Имя автора
+ * @param authorLastName  Фамилия автора
+ * @param description     Описание объявления
+ * @param email           Адрес электронной почты пользователя
+ * @param image           Ссылка на картинку объявления
+ * @param phone           Номер контактного телефона
+ * @param price           Цена в объявлений
+ * @param title           Заголовок объявления
+ */
 public record ExtendedAdDto(
-        //id объявления
         Integer pk,
         @NotBlank(message = "Имя автора не может быть пустым")
         @Size(min = 2, max = 10, message = "Имя автора должно быть от 2 до 10 символов")
@@ -16,7 +26,6 @@ public record ExtendedAdDto(
         String description,
         @Email(message = "Некорректный формат адреса электронной почты")
         String email,
-         //ссылка на картинку объявления
         String image,
         @NotBlank(message = "Введите номер Вашего контактного телефона")
         @Pattern(regexp = "\\+7\\s?\\(?\\d{3}\\)?\\s?\\d{3}-?\\d{2}-?\\d{2}",

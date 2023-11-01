@@ -6,18 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.skypro.homework.enums.Role;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.List;
 
+/**
+ * Класс, представляющий пользователя.
+ */
 @Entity
 @Getter
 @Setter
@@ -25,34 +20,60 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "users")
 public class User extends BaseEntity {
-
+    /**
+     * Логин пользователя.
+     */
     @Email
     @Column(name = "login", nullable = false)
     private String login;
 
+    /**
+     * Пароль пользователя.
+     */
     @Column(name = "password", nullable = false)
     private String password;
 
+    /**
+     * Имя пользователя.
+     */
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    /**
+     * Фамилия пользователя.
+     */
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    /**
+     * Телефон пользователя.
+     */
     @Column(name = "phone", nullable = false)
     private String phone;
 
+    /**
+     * Роль пользователя.
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
 
+    /**
+     * Изображение пользователя.
+     */
     @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "user_image_id")
     private UserImage userImage;
 
+    /**
+     * Объявления пользователя.
+     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ad> ads;
 
+    /**
+     * Комментарии пользователя.
+     */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 

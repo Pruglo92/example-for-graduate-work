@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.service.ImageService;
 
+/**
+ * Контроллер отвечающий за обработку HTTP-запросов, связанных с ним изображений.
+ */
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequestMapping("/images")
@@ -19,6 +18,12 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    /**
+     * Получает изображение с указанным именем.
+     *
+     * @param name Имя изображения.
+     * @return Ответ со статусом HTTP 200 и содержимым изображения в теле ответа.
+     */
     @GetMapping(value = "/{name}", produces = {
             MediaType.IMAGE_PNG_VALUE,
             MediaType.IMAGE_JPEG_VALUE,
