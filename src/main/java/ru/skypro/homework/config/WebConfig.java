@@ -4,9 +4,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Класс конфигурации для веб-приложения.
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
+    /**
+     * Конфигурирует Cross-Origin Resource Sharing (CORS) для приложения.
+     *
+     * @param registry Реестр CORS-маппингов
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

@@ -19,6 +19,9 @@ import ru.skypro.homework.service.impl.AdServiceImpl;
 import javax.validation.Valid;
 import java.io.IOException;
 
+/**
+ * Контроллер для работы с объявлениями.
+ */
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequestMapping("/ads")
@@ -29,6 +32,13 @@ import java.io.IOException;
 public class AdsController {
     private final AdServiceImpl adService;
 
+    /**
+     * Удаление объявления.
+     *
+     * @param id             идентификатор объявления
+     * @param authentication данные аутентификации пользователя
+     * @return {@link ResponseEntity} без тела (No Content)
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Удаление объявления",
             description = "Удаление объявления по идентификационному номеру авторизованным пользователем")
@@ -41,6 +51,11 @@ public class AdsController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Получение всех объявлений.
+     *
+     * @return {@link ResponseEntity} с объектом {@link AdsDto}
+     */
     @GetMapping
     @Operation(summary = "Получение всех объявлений",
             description = "Получение количества и списка всех объявлений")
@@ -50,6 +65,14 @@ public class AdsController {
         return ResponseEntity.ok(allAdsDtoList);
     }
 
+    /**
+     * Добавление объявления.
+     *
+     * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
+     * @param image               изображение объявления
+     * @return {@link ResponseEntity} с объектом {@link AdDto}
+     * @throws IOException если произошла ошибка ввода-вывода
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление объявления",
             description = "Добавление изображения и всех полей объявления")
@@ -61,6 +84,12 @@ public class AdsController {
         return ResponseEntity.ok(addedAdDto);
     }
 
+    /**
+     * Получение информации об объявлении по его id.
+     *
+     * @param id идентификатор объявления
+     * @return {@link ResponseEntity} с объектом {@link ExtendedAdDto}
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Получение информации об объявлении",
             description = "Получение информации об объявлении по его id")
@@ -72,6 +101,13 @@ public class AdsController {
         return ResponseEntity.ok(extendedAdDto);
     }
 
+    /**
+     * Обновление информации об объявлении по id объявления.
+     *
+     * @param id                  идентификатор объявления
+     * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
+     * @return {@link ResponseEntity} с объектом {@link AdDto}
+     */
     @PatchMapping("/{id}")
     @Operation(summary = "Обновление информации об объявлении",
             description = "Обновление информации об объявлении по id объявления")
@@ -84,6 +120,11 @@ public class AdsController {
         return ResponseEntity.ok(adService.updateAd(id, createOrUpdateAdDto));
     }
 
+    /**
+     * Получение объявлений авторизованного пользователя.
+     *
+     * @return {@link ResponseEntity} с объектом {@link AdsDto}
+     */
     @GetMapping("/me")
     @Operation(summary = "Получение объявлений авторизованного пользователя")
     @ApiResponse(responseCode = "200", description = "OK")
@@ -93,6 +134,14 @@ public class AdsController {
         return ResponseEntity.ok(userAdsDtoList);
     }
 
+    /**
+     * Обновление картинки объявления по id объявления.
+     *
+     * @param id    идентификатор объявления
+     * @param image новое изображение объявления
+     * @return {@link ResponseEntity} с сообщением об успешном обновлении
+     * @throws IOException если произошла ошибка ввода-вывода
+     */
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Обновление картинки объявления",
             description = "Обновление картинки объявления по id объявления")
