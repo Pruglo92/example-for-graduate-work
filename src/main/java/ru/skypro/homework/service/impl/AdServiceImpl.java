@@ -29,22 +29,49 @@ public class AdServiceImpl implements AdService {
     private final UserRepository userRepository;
     private final AdMapper adMapper;
 
+    /**
+     * Удаляет объявление по его идентификатору.
+     *
+     * @param id             идентификатор объявления
+     * @param authentication объект аутентификации текущего пользователя
+     */
     @Override
     public void removeAd(Integer id, Authentication authentication) {
         authentication.isAuthenticated();
         adRepository.removeAdById(id);
     }
 
+    /**
+     * Добавляет новое объявление.
+     *
+     * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
+     * @param image               изображение для объявления
+     * @return созданное объявление в виде объекта AdDto
+     */
     @Override
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile image) {
         return null;
     }
 
+    /**
+     * Возвращает расширенную информацию по объявлению по его идентификатору.
+     *
+     * @param id идентификатор объявления
+     * @return объект ExtendedAdDto с расширенной информацией по объявлению
+     */
     @Override
     public ExtendedAdDto getAdById(Integer id) {
         return adMapper.toDto(adRepository.getAdById(id));
     }
 
+    /**
+     * Обновляет объявление по его идентификатору.
+     *
+     * @param id                  идентификатор объявления
+     * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
+     * @return обновленное объявление в виде объекта AdDto
+     * @throws AdNotFoundException если объявление не найдено
+     */
     @Override
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id));
@@ -52,6 +79,11 @@ public class AdServiceImpl implements AdService {
         return adMapper.toAdDto(ad);
     }
 
+    /**
+     * Возвращает все объявления, принадлежащие авторизованному пользователю.
+     *
+     * @return объект AdsDto с количеством и списком объявлений авторизованного пользователя
+     */
     @Override
     public AdsDto getAuthorizedUserAds() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -62,11 +94,22 @@ public class AdServiceImpl implements AdService {
         return new AdsDto(adsDtoList.size(), adsDtoList);
     }
 
+    /**
+     * Обновляет изображение объявления.
+     *
+     * @param id   идентификатор объявления
+     * @param file новое изображение
+     */
     @Override
     public void UpdateAdImage(Integer id, final MultipartFile file) {
 
     }
 
+    /**
+     * Возвращает все объявления.
+     *
+     * @return объект AdsDto с количеством и списком всех объявлений
+     */
     @Override
     public AdsDto getAllAds() {
         List<Ad> list = adRepository.findAll();
@@ -75,6 +118,13 @@ public class AdServiceImpl implements AdService {
         return new AdsDto(adsDtoList.size(), adsDtoList);
     }
 
+    /**
+     * Получает пользователя по идентификатору объявления.
+     *
+     * @param adId идентификатор объявления
+     * @return объект User, владелец объявления
+     * @throws AdNotFoundException если объявление не найдено
+     */
     protected User getUserByAdId(Integer adId) {
         return adRepository.findById(adId)
                 .orElseThrow(() ->
@@ -82,6 +132,4 @@ public class AdServiceImpl implements AdService {
                 .getUser();
 
     }
-
-
 }

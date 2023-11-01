@@ -8,5 +8,11 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
+    /**
+     * Возвращает список комментариев по идентификатору объявления.
+     *
+     * @param adId идентификатор объявления
+     * @return список комментариев
+     */
     List<Comment> findAllByAdId(Integer adId);
 }
