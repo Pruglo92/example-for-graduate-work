@@ -22,6 +22,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Сервис изображений.
+ * Осуществляет операции обновления изображения и получения изображения из файла.
+ */
 @Slf4j
 @Service
 @Transactional
@@ -35,6 +39,13 @@ public class ImageServiceImpl implements ImageService {
 
     private final ImageRepository imageRepository;
 
+    /**
+     * Обновляет изображение.
+     *
+     * @param file  файл изображения
+     * @param image объект изображения
+     * @return обновленное изображение
+     */
     @Override
     public Image updateImage(final MultipartFile file, final Image image) {
         log.info("Was invoked method for : updateImage");
@@ -58,6 +69,13 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
+    /**
+     * Получает изображение из файла.
+     *
+     * @param imageName имя изображения
+     * @return ответ с изображением в виде ресурса
+     * @throws ImageNotFoundException если изображение не найдено
+     */
     @Override
     public ResponseEntity<Resource> getImageFromFile(final String imageName) {
         log.info("Was invoked method for : getImageFromFile");

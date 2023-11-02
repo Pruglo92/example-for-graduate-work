@@ -18,6 +18,9 @@ import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
 
+/**
+ * Реализация сервиса пользователей.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -28,6 +31,13 @@ public class UserServiceImpl implements UserService {
     private final ImageService imageService;
     private final UserRepository userRepository;
 
+    /**
+     * Устанавливает новый пароль для текущего пользователя.
+     *
+     * @param currentPassword текущий пароль
+     * @param newPassword     новый пароль
+     * @throws BadCredentialsException если текущий пароль неверен
+     */
     @Override
     public void setPassword(final String currentPassword, final String newPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -39,6 +49,12 @@ public class UserServiceImpl implements UserService {
                 }).orElseThrow(() -> new BadCredentialsException("Неверный текущий пароль"));
     }
 
+    /**
+     * Возвращает данные авторизованного пользователя.
+     *
+     * @return данные авторизованного пользователя
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     public UserDto getAuthorizedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -47,6 +63,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
     }
 
+    /**
+     * Обновляет данные пользователя.
+     *
+     * @param updateUser данные для обновления пользователя
+     * @return обновленные данные пользователя
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     public UpdateUserDto updateUser(final UpdateUserDto updateUser) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -59,6 +82,12 @@ public class UserServiceImpl implements UserService {
         }).orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
     }
 
+    /**
+     * Обновляет изображение пользователя.
+     *
+     * @param file файл изображения
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     public void UpdateUserImage(final MultipartFile file) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
