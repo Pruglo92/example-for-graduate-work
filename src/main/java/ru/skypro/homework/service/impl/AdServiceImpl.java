@@ -41,13 +41,10 @@ public class AdServiceImpl implements AdService {
     @Override
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file, Authentication authentication) {
         authentication.isAuthenticated();
-
-        Ad ad = new Ad();
-        ad.setUser(userRepository.findByLogin(authentication.getName()).orElseThrow());
-        ad.setPrice(createOrUpdateAdDto.price());
-        ad.setTitle(createOrUpdateAdDto.title());
+        User user = userRepository.findByLogin(authentication.getName()).orElseThrow();
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
-        ad.setImage(image);
+
+        Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
 
         adRepository.save(ad);
 

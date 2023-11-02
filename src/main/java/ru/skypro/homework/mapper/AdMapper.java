@@ -7,6 +7,7 @@ import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
+import ru.skypro.homework.entity.Image;
 import ru.skypro.homework.entity.User;
 
 import java.util.List;
@@ -36,4 +37,5 @@ public interface AdMapper {
     Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
 
     List<AdDto> toAdsDto(List<Ad> list);
+
 }
