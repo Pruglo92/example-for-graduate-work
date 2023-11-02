@@ -16,6 +16,9 @@ import ru.skypro.homework.service.CommentService;
 
 import javax.validation.Valid;
 
+/**
+ * Контроллер для работы с комментариями.
+ */
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
 @RequestMapping("/ads")
@@ -26,6 +29,14 @@ public class CommentsController {
 
     private final CommentService commentService;
 
+    /**
+     * Удаляет комментарий в объявлении.
+     *
+     * @param adId           Идентификатор объявления.
+     * @param commentId      Идентификатор комментария.
+     * @param authentication Информация об аутентификации пользователя.
+     * @return Ответ со статусом HTTP 200 в случае успешного удаления комментария.
+     */
     @DeleteMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Удаление комментария в объявлении",
             description = "Удаление комментария по id объявления и id комментария авторизованным пользователем")
@@ -40,6 +51,12 @@ public class CommentsController {
         }
     }
 
+    /**
+     * Получает все комментарии объявления.
+     *
+     * @param adId Идентификатор объявления.
+     * @return Ответ со статусом HTTP 200 и списком комментариев в теле ответа.
+     */
     @GetMapping("/{id}/comments")
     @Operation(summary = "Получение комментариев объявления",
             description = "Получение всех комментариев объявления по id объявления")
@@ -50,6 +67,14 @@ public class CommentsController {
         return ResponseEntity.ok(commentService.getCommentsByAd(adId));
     }
 
+    /**
+     * Добавляет комментарий к объявлению.
+     *
+     * @param adId                     Идентификатор объявления.
+     * @param createOrUpdateCommentDto Данные для создания или обновления комментария.
+     * @param authentication           Информация об аутентификации пользователя.
+     * @return Ответ со статусом HTTP 200 и созданным комментарием в теле ответа.
+     */
     @PostMapping("/{id}/comments")
     @Operation(summary = "Добавление комментария к объявлению",
             description = "Добавление комментария к объявлению по его id")
@@ -62,6 +87,15 @@ public class CommentsController {
         return ResponseEntity.ok(commentService.addCommentToAd(adId, createOrUpdateCommentDto, authentication));
     }
 
+    /**
+     * Обновляет комментарий в объявлении.
+     *
+     * @param adId                     Идентификатор объявления.
+     * @param commentId                Идентификатор комментария.
+     * @param createOrUpdateCommentDto Данные для создания или обновления комментария.
+     * @param authentication           Информация об аутентификации пользователя.
+     * @return Ответ со статусом HTTP 200 и обновленным комментарием в теле ответа.
+     */
     @PatchMapping("/{adId}/comments/{commentId}")
     @Operation(summary = "Обновление комментария",
             description = "Обновление комментария к объявлению по id объявления и id комментария")

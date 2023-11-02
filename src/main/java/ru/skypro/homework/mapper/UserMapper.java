@@ -14,14 +14,32 @@ public abstract class UserMapper {
     @Autowired
     private PasswordEncoder encoder;
 
+    /**
+     * Преобразует объект `RegisterDto` в объект `User`.
+     *
+     * @param registerDto данные для регистрации
+     * @return объект `User`
+     */
     @Mapping(target = "login", source = "username")
     @Mapping(target = "password", expression = "java(encryptPassword(registerDto))")
     public abstract User toEntity(RegisterDto registerDto);
 
+    /**
+     * Преобразует объект `User` в объект `UserDto`.
+     *
+     * @param user объект `User` для преобразования
+     * @return объект `UserDto`
+     */
     @Mapping(target = "email", source = "login")
     @Mapping(target = "image", source = "userImage.filePath")
     public abstract UserDto toDto(User user);
 
+    /**
+     * Шифрует пароль, используя `PasswordEncoder`.
+     *
+     * @param registerDto данные для регистрации
+     * @return зашифрованный пароль
+     */
     protected String encryptPassword(RegisterDto registerDto) {
         return encoder.encode(registerDto.password());
     }

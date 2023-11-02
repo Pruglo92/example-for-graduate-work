@@ -2,12 +2,16 @@ package ru.skypro.homework.dto;
 
 import javax.validation.constraints.*;
 
+/**
+ * @param author id автора
+ * @param image  ссылка на картинку объявления
+ * @param pk     ID объявления
+ * @param price  Цена в объявлений
+ * @param title  Заголовок объявления
+ */
 public record AdDto(
-        //id автора
         Integer author,
-        //ссылка на картинку объявления
         String image,
-        //ID объявления
         Integer pk,
         @NotNull(message = "Цена в объявлений не может быть пустой")
         @Min(0)

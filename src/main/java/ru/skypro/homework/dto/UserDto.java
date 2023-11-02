@@ -7,8 +7,16 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+/**
+ * @param id        id пользователя
+ * @param email     Логин в виде электронной почты
+ * @param firstName Имя автора
+ * @param lastName  Фамилия автора
+ * @param phone     Номер контактного телефона
+ * @param role      Роль пользователя
+ * @param image     Ссылка на аватар пользователя
+ */
 public record UserDto(
-        //id пользователя
         Integer id,
         @NotBlank(message = "Поле логин не может быть пустым")
         @Size(min = 4, max = 32, message = "Логин должен содержать от 4 до 32 символов")
@@ -24,9 +32,7 @@ public record UserDto(
         @Pattern(regexp = "\\+7\\s?\\(?\\d{3}\\)?\\s?\\d{3}-?\\d{2}-?\\d{2}",
                 message = "Введите номер в формате +7 (000) 000-00-00")
         String phone,
-        // роль пользователя
         Role role,
-        //ссылка на аватар пользователя
         String image
 ) {
 }

@@ -1,9 +1,13 @@
 package ru.skypro.homework.dto;
+
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
-public record CommentsDto(
 
-        // общее количество комментариев
+/**
+ * @param count   Общее количество комментариев
+ * @param results Список комментариев
+ */
+public record CommentsDto(
         Integer count,
         @NotEmpty
         List<CommentDto> results

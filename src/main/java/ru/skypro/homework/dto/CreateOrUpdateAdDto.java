@@ -2,6 +2,11 @@ package ru.skypro.homework.dto;
 
 import javax.validation.constraints.*;
 
+/**
+ * @param title       Заголовок объявления
+ * @param price       Цена в объявлений
+ * @param description Описание объявления
+ */
 public record CreateOrUpdateAdDto(
         @NotBlank(message = "Заголовок объявления не может быть пустым")
         @Size(min = 4, max = 32, message = "Заголовок объявления должен содержать не менее 4 и не более 32 символов")
