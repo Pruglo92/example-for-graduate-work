@@ -85,7 +85,9 @@ public class CommentServiceImpl implements CommentService {
                     getUserFromAuthentication(authentication));
             commentRepository.save(comment);
             return commentMapper.entityToCommentDto(comment);
-        } else throw new CommentInconsistencyToAdException();
+        } else {
+            throw new CommentInconsistencyToAdException();
+        }
     }
 
     /**
@@ -102,7 +104,9 @@ public class CommentServiceImpl implements CommentService {
             throws CommentNotFoundException, CommentInconsistencyToAdException {
         if (adId.equals(getCommentByCommentId(commentId).getAd().getId())) {
             commentRepository.delete(getCommentByCommentId(commentId));
-        } else throw new CommentInconsistencyToAdException();
+        } else {
+            throw new CommentInconsistencyToAdException();
+        }
     }
 
     /**

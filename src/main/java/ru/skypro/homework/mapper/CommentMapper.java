@@ -14,8 +14,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 @Mapper
-public abstract class CommentMapper {
-    /**
+public interface CommentMapper {
+     /**
      * Преобразует объект `Comment` в объект `CommentDto`.
      *
      * @param comment объект `Comment` для преобразования
@@ -26,7 +26,7 @@ public abstract class CommentMapper {
     @Mapping(target = "authorFirstName", source = "user.firstName")
     @Mapping(target = "createdAt", expression = "java(getLongFromLocalDateTime(comment.getCreatedAt()))")
     @Mapping(target = "pk", source = "id")
-    public abstract CommentDto entityToCommentDto(Comment comment);
+    CommentDto entityToCommentDto(Comment comment);
 
     /**
      * Создает объект `Comment` на основе данных из `Ad`, `CreateOrUpdateCommentDto` и `User`.
@@ -40,7 +40,7 @@ public abstract class CommentMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "user", source = "user")
     @Mapping(target = "ad", source = "ad")
-    public abstract Comment createCommentDtoToEntity(Ad ad, CreateOrUpdateCommentDto createOrUpdateCommentDto, User user);
+    Comment createCommentDtoToEntity(Ad ad, CreateOrUpdateCommentDto createOrUpdateCommentDto, User user);
 
     /**
      * Обновляет объект `Comment` на основе данных из `Ad`, `CreateOrUpdateCommentDto`, `LocalDateTime` и `User`.
@@ -53,10 +53,9 @@ public abstract class CommentMapper {
      * @return объект `Comment`
      */
     @Mapping(target = "id", source = "commentId")
-    @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "ad", source = "ad")
-    public abstract Comment updateCommentDtoToEntity(Ad ad, Integer commentId,
+    Comment updateCommentDtoToEntity(Ad ad, Integer commentId,
                                                      CreateOrUpdateCommentDto createOrUpdateCommentDto,
                                                      LocalDateTime createdAt, User user);
 
@@ -66,18 +65,17 @@ public abstract class CommentMapper {
      * @param commentDtoList список комментариев
      * @return объект `CommentsDto`
      */
-    public CommentsDto commentDtoListToCommentsDto(List<CommentDto> commentDtoList) {
+    default CommentsDto commentDtoListToCommentsDto(List<CommentDto> commentDtoList) {
         return new CommentsDto(commentDtoList.size(), commentDtoList);
     }
-
     /**
      * Преобразует объект `LocalDateTime` в тип `Long`, представляющий количество миллисекунд с 1970-01-01T00:00:00.
      *
      * @param localDateTime объект `LocalDateTime` для преобразования
      * @return количество миллисекунд с 1970-01-01T00:00:00Z
      */
-    protected Long getLongFromLocalDateTime(LocalDateTime localDateTime) {
+    default Long getLongFromLocalDateTime(LocalDateTime localDateTime) {
+
         return localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
-
 }

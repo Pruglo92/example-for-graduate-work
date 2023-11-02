@@ -11,12 +11,14 @@ import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
+import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.ImageService;
 
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class AdServiceImpl implements AdService {
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final AdMapper adMapper;
+    private final ImageService imageService;
 
     /**
      * Удаляет объявление по его идентификатору.
@@ -49,8 +52,19 @@ public class AdServiceImpl implements AdService {
      * @return созданное объявление в виде объекта AdDto
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile image) {
-        return null;
+    public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file, Authentication authentication) {
+        authentication.isAuthenticated();
+
+        Ad ad = new Ad();
+        ad.setUser(userRepository.findByLogin(authentication.getName()).orElseThrow());
+        ad.setPrice(createOrUpdateAdDto.price());
+        ad.setTitle(createOrUpdateAdDto.title());
+        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+        ad.setImage(image);
+
+        adRepository.save(ad);
+
+        return adMapper.toAdDto(ad);
     }
 
     /**
@@ -76,6 +90,7 @@ public class AdServiceImpl implements AdService {
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id));
         adRepository.save(ad);
+
         return adMapper.toAdDto(ad);
     }
 
@@ -101,8 +116,12 @@ public class AdServiceImpl implements AdService {
      * @param file новое изображение
      */
     @Override
-    public void UpdateAdImage(Integer id, final MultipartFile file) {
-
+    public void updateAdImage(Integer id, final MultipartFile file) {
+        Ad ad = adRepository.findById(id)
+                .orElseThrow(() -> new AdNotFoundException(id));
+        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+        ad.setImage(image);
+        adRepository.save(ad);
     }
 
     /**

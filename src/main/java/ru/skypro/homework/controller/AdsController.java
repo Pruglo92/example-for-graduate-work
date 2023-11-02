@@ -14,7 +14,7 @@ import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
-import ru.skypro.homework.service.impl.AdServiceImpl;
+import ru.skypro.homework.service.AdService;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 
 public class AdsController {
-    private final AdServiceImpl adService;
+    private final AdService adService;
 
     /**
      * Удаление объявления.
@@ -79,8 +79,8 @@ public class AdsController {
     @ApiResponse(responseCode = "201", description = "Created")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<AdDto> addAd(@RequestPart("properties") @Valid CreateOrUpdateAdDto createOrUpdateAdDto,
-                                       @RequestPart MultipartFile image) throws IOException {
-        AdDto addedAdDto = new AdDto(1, "imagePath", 1, createOrUpdateAdDto.price(), createOrUpdateAdDto.title());
+                                       @RequestPart MultipartFile image, Authentication authentication) throws IOException {
+        AdDto addedAdDto = adService.addAd(createOrUpdateAdDto, image, authentication);
         return ResponseEntity.ok(addedAdDto);
     }
 
@@ -151,6 +151,7 @@ public class AdsController {
     @ApiResponse(responseCode = "404", description = "Not found")
     public ResponseEntity<String> updateAdImage(@PathVariable("id") Integer id,
                                                 @RequestParam MultipartFile image) throws IOException {
+        adService.updateAdImage(id, image);
         return ResponseEntity.ok("Image updated successfully");
     }
 

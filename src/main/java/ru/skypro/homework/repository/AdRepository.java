@@ -30,4 +30,6 @@ public interface AdRepository extends JpaRepository<Ad, Integer> {
      * @return список объявлений, принадлежащих пользователю
      */
     List<Ad> getAdsByUserId(Integer id);
+
+
 }
