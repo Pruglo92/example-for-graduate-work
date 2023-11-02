@@ -62,6 +62,9 @@ public class AdServiceImpl implements AdService {
     @Override
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id));
+        AdImage image = adRepository.getAdById(id).getImage();
+        ad.setImage(image);
+
         adRepository.save(ad);
 
         return adMapper.toAdDto(ad);

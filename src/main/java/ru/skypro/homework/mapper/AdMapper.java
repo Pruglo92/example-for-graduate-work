@@ -40,6 +40,4 @@ public interface AdMapper {
     Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user);
 
     List<AdDto> toAdsDto(List<Ad> list);
-
-    AdImage toAdImage(MultipartFile file);
 }
