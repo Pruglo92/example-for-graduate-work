@@ -41,14 +41,19 @@ public class AdServiceImpl implements AdService {
     @Override
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file, Authentication authentication) {
         authentication.isAuthenticated();
-
-        Ad ad = new Ad();
-        ad.setUser(userRepository.findByLogin(authentication.getName()).orElseThrow());
-        ad.setPrice(createOrUpdateAdDto.price());
-        ad.setTitle(createOrUpdateAdDto.title());
+        User user = userRepository.findByLogin(authentication.getName()).orElseThrow();
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
-        ad.setImage(image);
 
+        Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
+
+        adRepository.save(ad);
+
+        return adMapper.toAdDto(ad);
+    }
+
+    @Override
+    public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
+        Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id));
         adRepository.save(ad);
 
         return adMapper.toAdDto(ad);
@@ -59,13 +64,6 @@ public class AdServiceImpl implements AdService {
         return adMapper.toDto(adRepository.getAdById(id));
     }
 
-    @Override
-    public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
-        Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id));
-        adRepository.save(ad);
-
-        return adMapper.toAdDto(ad);
-    }
 
     @Override
     public AdsDto getAuthorizedUserAds() {
