@@ -2,13 +2,11 @@ package ru.skypro.homework.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
-import ru.skypro.homework.entity.Image;
 import ru.skypro.homework.entity.User;
 
 import java.util.List;
@@ -50,8 +48,9 @@ public interface AdMapper {
      * @return объект `Ad`
      */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "image", source = "image")
     @Mapping(target = "user", source = "user")
-    Ad createAdDtoToAd(CreateOrUpdateAdDto createOrUpdateAdDto, User user, Image image);
+    Ad createAdDtoToAd(CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
 
     /**
      * Обновляет объект `Ad` на основе данных из `CreateOrUpdateAdDto` и `User`.
@@ -59,12 +58,12 @@ public interface AdMapper {
      * @param id                  идентификатор объявления для обновления
      * @param createOrUpdateAdDto данные для обновления объявления
      * @param user                пользователь, обновляющий объявление
+     * @param image               изображение, связанное с объявлением
      * @return объект `Ad`
      */
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "image", ignore = true)
     @Mapping(target = "user", source = "user")
-    Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user);
+    Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
 
     /**
      * Преобразует список объектов `Ad` в список объектов `AdDto`.
@@ -74,11 +73,4 @@ public interface AdMapper {
      */
     List<AdDto> toAdsDto(List<Ad> list);
 
-    /**
-     * Преобразует `MultipartFile` в объект `AdImage`.
-     *
-     * @param file файл изображения
-     * @return объект `AdImage`
-     */
-    AdImage toAdImage(MultipartFile file);
 }

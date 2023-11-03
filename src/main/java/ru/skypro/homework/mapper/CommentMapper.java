@@ -75,7 +75,6 @@ public interface CommentMapper {
      * @return количество миллисекунд с 1970-01-01T00:00:00Z
      */
     default Long getLongFromLocalDateTime(LocalDateTime localDateTime) {
-
         return localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
 }
