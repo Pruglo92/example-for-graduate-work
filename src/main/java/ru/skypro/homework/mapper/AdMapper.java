@@ -2,13 +2,11 @@ package ru.skypro.homework.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
-import ru.skypro.homework.entity.Image;
 import ru.skypro.homework.entity.User;
 
 import java.util.List;
@@ -30,14 +28,12 @@ public interface AdMapper {
     AdDto toAdDto(Ad ad);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "image", source = "image")
     @Mapping(target = "user", source = "user")
-    Ad createAdDtoToAd(CreateOrUpdateAdDto createOrUpdateAdDto, User user, Image image);
+    Ad createAdDtoToAd(CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
 
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "image", ignore = true)
     @Mapping(target = "user", source = "user")
-    Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user);
+    Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
 
     List<AdDto> toAdsDto(List<Ad> list);
 }
