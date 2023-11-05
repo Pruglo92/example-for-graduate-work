@@ -15,7 +15,8 @@ import java.util.List;
 
 @Mapper
 public interface CommentMapper {
-     /**
+
+    /**
      * Преобразует объект `Comment` в объект `CommentDto`.
      *
      * @param comment объект `Comment` для преобразования
@@ -56,8 +57,8 @@ public interface CommentMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "ad", source = "ad")
     Comment updateCommentDtoToEntity(Ad ad, Integer commentId,
-                                                     CreateOrUpdateCommentDto createOrUpdateCommentDto,
-                                                     LocalDateTime createdAt, User user);
+                                     CreateOrUpdateCommentDto createOrUpdateCommentDto,
+                                     LocalDateTime createdAt, User user);
 
     /**
      * Преобразует список объектов `CommentDto` в объект `CommentsDto`.
@@ -68,6 +69,7 @@ public interface CommentMapper {
     default CommentsDto commentDtoListToCommentsDto(List<CommentDto> commentDtoList) {
         return new CommentsDto(commentDtoList.size(), commentDtoList);
     }
+
     /**
      * Преобразует объект `LocalDateTime` в тип `Long`, представляющий количество миллисекунд с 1970-01-01T00:00:00.
      *

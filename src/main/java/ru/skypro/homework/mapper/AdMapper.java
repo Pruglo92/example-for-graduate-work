@@ -72,5 +72,4 @@ public interface AdMapper {
      * @return список `AdDto`
      */
     List<AdDto> toAdsDto(List<Ad> list);
-
 }

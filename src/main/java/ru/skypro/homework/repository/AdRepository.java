@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface AdRepository extends JpaRepository<Ad, Integer> {
+
     /**
      * Удаляет объявление по его идентификатору.
      *
@@ -30,6 +31,4 @@ public interface AdRepository extends JpaRepository<Ad, Integer> {
      * @return список объявлений, принадлежащих пользователю
      */
     List<Ad> getAdsByUserId(Integer id);
-
-
 }

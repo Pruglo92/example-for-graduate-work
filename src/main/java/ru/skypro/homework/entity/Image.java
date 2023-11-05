@@ -17,6 +17,7 @@ import javax.persistence.MappedSuperclass;
 @AllArgsConstructor
 @MappedSuperclass
 public abstract class Image extends BaseEntity {
+
     /**
      * Имя файла изображения.
      */

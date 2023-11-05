@@ -12,11 +12,11 @@ import ru.skypro.homework.exceptions.ImageNotFoundException;
 @Slf4j
 @RestControllerAdvice
 public class ExceptionHandlerClass {
+
     /**
      * Обрабатывает исключения и возвращает соответствующий HTTP-ответ с кодом состояния и сообщением.
      *
-     * @param e   исключение, которое нужно обработать
-     * @param <T> тип исключения
+     * @param e исключение, которое нужно обработать
      * @return HTTP-ответ с кодом состояния и сообщением об ошибке
      */
     @ExceptionHandler
