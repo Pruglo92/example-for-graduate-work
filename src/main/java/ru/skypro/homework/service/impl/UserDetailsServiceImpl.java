@@ -12,6 +12,9 @@ import ru.skypro.homework.repository.UserRepository;
 
 import java.util.Collections;
 
+/**
+ * Реализация интерфейса UserDetailsService для получения информации о пользователе.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -19,6 +22,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Загружает информацию о пользователе по его имени пользователя.
+     *
+     * @param username имя пользователя
+     * @return информация о пользователе
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final var user = userRepository.findByLogin(username).orElseThrow(() ->

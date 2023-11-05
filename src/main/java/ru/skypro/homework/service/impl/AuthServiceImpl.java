@@ -13,6 +13,10 @@ import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AuthService;
 
+/**
+ * Сервис аутентификации и авторизации.
+ * Осуществляет процессы входа и регистрации пользователей.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -23,6 +27,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
     private final UserMapper userMapper;
 
+    /**
+     * Метод для входа пользователя.
+     *
+     * @param username имя пользователя
+     * @param password пароль пользователя
+     * @return true, если вход успешный; false, если имя пользователя не найдено или пароль неверный
+     */
     @Override
     public boolean login(final String username, final String password) {
         try {
@@ -33,6 +44,12 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    /**
+     * Метод для регистрации пользователя.
+     *
+     * @param registerDto данные для регистрации
+     * @return true, если регистрация успешная; false, если имя пользователя уже занято
+     */
     @Override
     public boolean register(final RegisterDto registerDto) {
         if (userRepository.existsByLogin(registerDto.username())) {
