@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +18,7 @@ import ru.skypro.homework.service.AuthService;
  * Сервис аутентификации и авторизации.
  * Осуществляет процессы входа и регистрации пользователей.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,6 +38,8 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public boolean login(final String username, final String password) {
+        log.info("Was invoked method for : login");
+
         try {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             return encoder.matches(password, userDetails.getPassword());
@@ -52,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public boolean register(final RegisterDto registerDto) {
+        log.info("Was invoked method for : register");
+
         if (userRepository.existsByLogin(registerDto.username())) {
             return false;
         }

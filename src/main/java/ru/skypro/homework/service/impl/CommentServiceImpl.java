@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
  * Сервис комментариев.
  * Осуществляет операции добавления, обновления, удаления и получения комментариев.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -50,6 +52,8 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto addCommentToAd(Integer adId,
                                      CreateOrUpdateCommentDto createOrUpdateCommentDto)
             throws AdNotFoundException, UsernameNotFoundException {
+        log.info("Was invoked method for : addCommentToAd");
+
         Comment comment = commentMapper.createCommentDtoToEntity(
                 getAdByAdId(adId),
                 createOrUpdateCommentDto,
@@ -73,6 +77,8 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto updateCommentToAd(Integer adId, Integer commentId,
                                         CreateOrUpdateCommentDto createOrUpdateCommentDto)
             throws CommentNotFoundException, AdNotFoundException, UsernameNotFoundException, CommentInconsistencyToAdException {
+        log.info("Was invoked method for : updateCommentToAd");
+
         if (adId.equals(getCommentByCommentId(commentId).getAd().getId())) {
             Comment comment = commentMapper.updateCommentDtoToEntity(
                     getAdByAdId(adId),
@@ -98,6 +104,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void removeComment(Integer adId, Integer commentId)
             throws CommentNotFoundException, CommentInconsistencyToAdException {
+        log.info("Was invoked method for : removeComment");
+
         if (adId.equals(getCommentByCommentId(commentId).getAd().getId())) {
             commentRepository.delete(getCommentByCommentId(commentId));
         } else {
@@ -113,6 +121,8 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     public CommentsDto getCommentsByAd(Integer adId) {
+        log.info("Was invoked method for : getCommentsByAd");
+
         List<CommentDto> commentsByAd = commentRepository.findAllByAdId(adId).stream()
                 .map(commentMapper::entityToCommentDto).toList();
         return commentMapper.commentDtoListToCommentsDto(commentsByAd);
@@ -126,12 +136,16 @@ public class CommentServiceImpl implements CommentService {
      * @throws AdNotFoundException если объявление не найдено
      */
     protected Ad getAdByAdId(Integer adId) {
+        log.info("Was invoked method for : getAdByAdId");
+
         return adRepository.findById(adId)
                 .orElseThrow(() ->
                         new AdNotFoundException(adId));
     }
 
     protected Comment getCommentByCommentId(Integer commentId) {
+        log.info("Was invoked method for : getCommentByCommentId");
+
         return commentRepository.findById(commentId)
                 .orElseThrow(() ->
                         new CommentNotFoundException(commentId));
@@ -145,6 +159,8 @@ public class CommentServiceImpl implements CommentService {
      * @throws CommentNotFoundException если комментарий не найден
      */
     protected LocalDateTime findCommentLocalDateTime(Integer commentId) {
+        log.info("Was invoked method for : findCommentLocalDateTime");
+
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(commentId))
                 .getCreatedAt();

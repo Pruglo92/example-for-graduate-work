@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
  * Сервис объявлений.
  * Осуществляет операции добавления, обновления, удаления и получения объявлений.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -45,6 +47,8 @@ public class AdServiceImpl implements AdService {
     @Override
     @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getAdById(#id).user.login")
     public void removeAd(Integer id) {
+        log.info("Was invoked method for : removeAd");
+
         adRepository.removeAdById(id);
     }
 
@@ -57,11 +61,11 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
+        log.info("Was invoked method for : addAd");
+
         User user = getUserFromAuthentication(userRepository);
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
-
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
-
         adRepository.save(ad);
 
         return adMapper.toAdDto(ad);
@@ -75,6 +79,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public ExtendedAdDto getAdById(Integer id) {
+        log.info("Was invoked method for : getAdById");
+
         return adMapper.toDto(adRepository.getAdById(id));
     }
 
@@ -88,6 +94,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
+        log.info("Was invoked method for : updateAd");
+
         AdImage image = adRepository.getAdById(id).getImage();
         Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id), image);
         adRepository.save(ad);
@@ -101,6 +109,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getAuthorizedUserAds() {
+        log.info("Was invoked method for : getAuthorizedUserAds");
+
         User user = getUserFromAuthentication(userRepository);
         List<Ad> list = adRepository.getAdsByUserId(user.getId());
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
@@ -116,6 +126,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public void updateAdImage(Integer id, final MultipartFile file) {
+        log.info("Was invoked method for : updateAdImage");
+
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new AdNotFoundException(id));
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
@@ -130,6 +142,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getAllAds() {
+        log.info("Was invoked method for : getAllAds");
+
         List<Ad> list = adRepository.findAll();
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
@@ -144,6 +158,8 @@ public class AdServiceImpl implements AdService {
      * @throws AdNotFoundException если объявление не найдено
      */
     protected User getUserByAdId(Integer adId) {
+        log.info("Was invoked method for : getUserByAdId");
+
         return adRepository.findById(adId)
                 .orElseThrow(() ->
                         new AdNotFoundException(adId))

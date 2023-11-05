@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
 /**
  * Реализация сервиса пользователей.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -40,6 +42,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void setPassword(final String currentPassword, final String newPassword) {
+        log.info("Was invoked method : setPassword");
+
         User user = getUserFromAuthentication(userRepository);
         if (encoder.matches(currentPassword, user.getPassword())) {
             user.setPassword(encoder.encode(newPassword));
@@ -55,6 +59,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getAuthorizedUser() {
+        log.info("Was invoked method for : getAuthorizedUser");
+
         return userMapper.toDto(getUserFromAuthentication(userRepository));
     }
 
@@ -67,6 +73,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UpdateUserDto updateUser(final UpdateUserDto updateUser) {
+        log.info("Was invoked method for : updateUser");
+
         User user = getUserFromAuthentication(userRepository);
         userMapper.updateUserFromDto(user, updateUser);
         var updatedUser = userRepository.save(user);
@@ -81,6 +89,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void UpdateUserImage(final MultipartFile file) {
+        log.info("Was invoked method for : UpdateUserImage");
+
         User user = getUserFromAuthentication(userRepository);
         UserImage image = (UserImage) imageService.updateImage(file, new UserImage());
         user.setUserImage(image);

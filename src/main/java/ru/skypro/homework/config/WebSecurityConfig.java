@@ -1,6 +1,7 @@
 package ru.skypro.homework.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  * Конфигурация безопасности веб-приложения.
  * Этот класс определяет настройки безопасности для веб-приложения.
  */
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -50,6 +52,8 @@ public class WebSecurityConfig extends GlobalMethodSecurityConfiguration {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.info("Was invoked method for : filterChain");
+
         http.csrf()
                 .disable()
                 .authorizeHttpRequests(
@@ -83,6 +87,8 @@ public class WebSecurityConfig extends GlobalMethodSecurityConfiguration {
      */
     @Override
     protected MethodSecurityExpressionHandler createExpressionHandler() {
+        log.info("Was invoked method for : createExpressionHandler");
+
         DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setDefaultRolePrefix("");
         expressionHandler.setApplicationContext(context);
