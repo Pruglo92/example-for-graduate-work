@@ -1,8 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +21,12 @@ import ru.skypro.homework.service.ImageService;
 
 import java.util.List;
 
+import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
+
+/**
+ * Сервис объявлений.
+ * Осуществляет операции добавления, обновления, удаления и получения объявлений.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -35,12 +40,11 @@ public class AdServiceImpl implements AdService {
     /**
      * Удаляет объявление по его идентификатору.
      *
-     * @param id             идентификатор объявления
-     * @param authentication объект аутентификации текущего пользователя
+     * @param id идентификатор объявления
      */
     @Override
-    public void removeAd(Integer id, Authentication authentication) {
-        authentication.isAuthenticated();
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getAdById(#id).user.login")
+    public void removeAd(Integer id) {
         adRepository.removeAdById(id);
     }
 
@@ -48,13 +52,12 @@ public class AdServiceImpl implements AdService {
      * Добавляет новое объявление.
      *
      * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
-     * @param image               изображение для объявления
+     * @param file                изображение для объявления
      * @return созданное объявление в виде объекта AdDto
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file, Authentication authentication) {
-        authentication.isAuthenticated();
-        User user = userRepository.findByLogin(authentication.getName()).orElseThrow();
+    public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
+        User user = getUserFromAuthentication(userRepository);
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
 
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
@@ -98,9 +101,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getAuthorizedUserAds() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer id = userRepository.findByLogin(authentication.getName()).orElseThrow().getId();
-        List<Ad> list = adRepository.getAdsByUserId(id);
+        User user = getUserFromAuthentication(userRepository);
+        List<Ad> list = adRepository.getAdsByUserId(user.getId());
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
         return new AdsDto(adsDtoList.size(), adsDtoList);
@@ -146,6 +148,5 @@ public class AdServiceImpl implements AdService {
                 .orElseThrow(() ->
                         new AdNotFoundException(adId))
                 .getUser();
-
     }
 }

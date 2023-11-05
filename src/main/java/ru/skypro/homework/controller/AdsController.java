@@ -6,9 +6,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
@@ -17,7 +26,6 @@ import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.service.AdService;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 /**
  * Контроллер для работы с объявлениями.
@@ -30,13 +38,13 @@ import java.io.IOException;
 @RequiredArgsConstructor
 
 public class AdsController {
+
     private final AdService adService;
 
     /**
      * Удаление объявления.
      *
-     * @param id             идентификатор объявления
-     * @param authentication данные аутентификации пользователя
+     * @param id идентификатор объявления
      * @return {@link ResponseEntity} без тела (No Content)
      */
     @DeleteMapping("/{id}")
@@ -46,8 +54,8 @@ public class AdsController {
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ApiResponse(responseCode = "403", description = "Forbidden")
     @ApiResponse(responseCode = "404", description = "Not Found")
-    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id, Authentication authentication) {
-        adService.removeAd(id, authentication);
+    public ResponseEntity<Void> removeAd(@PathVariable("id") Integer id) {
+        adService.removeAd(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -71,7 +79,6 @@ public class AdsController {
      * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
      * @param image               изображение объявления
      * @return {@link ResponseEntity} с объектом {@link AdDto}
-     * @throws IOException если произошла ошибка ввода-вывода
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление объявления",
@@ -79,8 +86,8 @@ public class AdsController {
     @ApiResponse(responseCode = "201", description = "Created")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<AdDto> addAd(@RequestPart("properties") @Valid CreateOrUpdateAdDto createOrUpdateAdDto,
-                                       @RequestPart MultipartFile image, Authentication authentication) throws IOException {
-        AdDto addedAdDto = adService.addAd(createOrUpdateAdDto, image, authentication);
+                                       @RequestPart MultipartFile image) {
+        AdDto addedAdDto = adService.addAd(createOrUpdateAdDto, image);
         return ResponseEntity.ok(addedAdDto);
     }
 
@@ -140,7 +147,6 @@ public class AdsController {
      * @param id    идентификатор объявления
      * @param image новое изображение объявления
      * @return {@link ResponseEntity} с сообщением об успешном обновлении
-     * @throws IOException если произошла ошибка ввода-вывода
      */
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Обновление картинки объявления",
@@ -150,12 +156,8 @@ public class AdsController {
     @ApiResponse(responseCode = "403", description = "Forbidden")
     @ApiResponse(responseCode = "404", description = "Not found")
     public ResponseEntity<String> updateAdImage(@PathVariable("id") Integer id,
-                                                @RequestParam MultipartFile image) throws IOException {
+                                                @RequestParam MultipartFile image) {
         adService.updateAdImage(id, image);
         return ResponseEntity.ok("Image updated successfully");
     }
-
 }
-
-
-
