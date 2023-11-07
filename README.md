@@ -25,7 +25,7 @@ docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
 
 ### Диаграмма взаимосвязи сущностей:
 
-![schema_bd.png](C:\Users\Acer\Desktop\schema_bd.png)
+<img alt="schema_bd.png" src="C:\Users\Acer\Desktop\schema_bd.png"/>
 
 <hr>
 
@@ -57,7 +57,7 @@ docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
 ### Команда разработчиков FourthTeam
 ### В разработке этого проекта принимают участие четыре junior-разработчика::
 
-**1. [Владимир Пругло](https://github.com/Pruglo92)**
+**1. [Пругло Владимир](https://github.com/Pruglo92)**
 
 **2. [Королева Елена](https://github.com/koroliana)**
 
@@ -88,5 +88,5 @@ docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
 
 ### FourthTeam
 
-![4team.png](C:\Users\Acer\Desktop\4team.png)
+<img alt="4team.png" src="C:\Users\Acer\Desktop\4team.png"/>
 
