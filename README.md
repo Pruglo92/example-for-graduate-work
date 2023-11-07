@@ -25,7 +25,7 @@ docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
 
 ### Диаграмма взаимосвязи сущностей:
 
-<img alt="schema_bd.png" src="C:\Users\Acer\Desktop\schema_bd.png"/>
+![schema_bd](C:\Users\Acer\Desktop\schema_bd.png)
 
 <hr>
 
@@ -87,6 +87,6 @@ docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
 <hr>
 
 ### FourthTeam
+![4team.png](C:\Users\Acer\Desktop\4team.png)
 
-<img alt="4team.png" src="C:\Users\Acer\Desktop\4team.png"/>
 
