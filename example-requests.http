@@ -20,8 +20,21 @@ Content-Type: application/json
   "password": "password",
   "firstName": " asdad",
   "lastName": " asdad",
-  "phone": " asdad",
+  "phone": "+7 (000) 000-00-00",
   "role": "USER"
+}
+
+###
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+"username": "Hi@hi.ru",
+"password": "123456789",
+"firstName": "Hi",
+"lastName": "Hi",
+"phone": "+7 (000) 000-00-00",
+"role": "ADMIN"
 }
 
 ###

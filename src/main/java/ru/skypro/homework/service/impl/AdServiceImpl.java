@@ -93,6 +93,7 @@ public class AdServiceImpl implements AdService {
      * @throws AdNotFoundException если объявление не найдено
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getAdById(#id).user.login")
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         log.info("Was invoked method for : updateAd");
 
@@ -125,6 +126,7 @@ public class AdServiceImpl implements AdService {
      * @param file новое изображение
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getAdById(#id).user.login")
     public void updateAdImage(Integer id, final MultipartFile file) {
         log.info("Was invoked method for : updateAdImage");
 
