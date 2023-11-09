@@ -33,7 +33,6 @@ import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
 @Transactional
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
-
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final AdMapper adMapper;
@@ -132,7 +131,7 @@ public class AdServiceImpl implements AdService {
         log.info("Was invoked method for : updateAdImage");
 
         Ad ad = adRepository.findById(id)
-                .orElseThrow(() -> new AdNotFoundException());
+                .orElseThrow(AdNotFoundException::new);
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
         ad.setImage(image);
         adRepository.save(ad);
@@ -164,8 +163,7 @@ public class AdServiceImpl implements AdService {
         log.info("Was invoked method for : getUserByAdId");
 
         return adRepository.findById(adId)
-                .orElseThrow(() ->
-                        new AdNotFoundException())
+                .orElseThrow(AdNotFoundException::new)
                 .getUser();
     }
 }

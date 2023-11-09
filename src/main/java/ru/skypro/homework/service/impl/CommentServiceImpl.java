@@ -34,7 +34,6 @@ import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
 @Transactional
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final AdRepository adRepository;
@@ -143,16 +142,14 @@ public class CommentServiceImpl implements CommentService {
         log.info("Was invoked method for : getAdByAdId");
 
         return adRepository.findById(adId)
-                .orElseThrow(() ->
-                        new AdNotFoundException());
+                .orElseThrow(AdNotFoundException::new);
     }
 
     protected Comment getCommentByCommentId(Integer commentId) {
         log.info("Was invoked method for : getCommentByCommentId");
 
         return commentRepository.findById(commentId)
-                .orElseThrow(() ->
-                        new CommentNotFoundException());
+                .orElseThrow(CommentNotFoundException::new);
     }
 
     /**
@@ -166,7 +163,7 @@ public class CommentServiceImpl implements CommentService {
         log.info("Was invoked method for : findCommentLocalDateTime");
 
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException())
+                .orElseThrow(CommentNotFoundException::new)
                 .getCreatedAt();
     }
 }
