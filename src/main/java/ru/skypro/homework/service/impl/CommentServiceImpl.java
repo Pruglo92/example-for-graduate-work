@@ -2,6 +2,7 @@ package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
      * @throws UsernameNotFoundException если пользователя не найдено
      */
     @Override
+    @PreAuthorize("hasRole('USER')")
     public CommentDto addCommentToAd(Integer adId,
                                      CreateOrUpdateCommentDto createOrUpdateCommentDto)
             throws AdNotFoundException, UsernameNotFoundException {
@@ -74,6 +76,7 @@ public class CommentServiceImpl implements CommentService {
      * @throws UsernameNotFoundException если пользователя не найдено
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @commentRepository.getById(#commentId).getUser().login")
     public CommentDto updateCommentToAd(Integer adId, Integer commentId,
                                         CreateOrUpdateCommentDto createOrUpdateCommentDto)
             throws CommentNotFoundException, AdNotFoundException, UsernameNotFoundException, CommentInconsistencyToAdException {
@@ -102,6 +105,7 @@ public class CommentServiceImpl implements CommentService {
      * @throws CommentInconsistencyToAdException если комментарий не соответствует объявлению
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @commentRepository.getById(#commentId).getUser().login")
     public void removeComment(Integer adId, Integer commentId)
             throws CommentNotFoundException, CommentInconsistencyToAdException {
         log.info("Was invoked method for : removeComment");
@@ -140,7 +144,7 @@ public class CommentServiceImpl implements CommentService {
 
         return adRepository.findById(adId)
                 .orElseThrow(() ->
-                        new AdNotFoundException(adId));
+                        new AdNotFoundException());
     }
 
     protected Comment getCommentByCommentId(Integer commentId) {
@@ -148,7 +152,7 @@ public class CommentServiceImpl implements CommentService {
 
         return commentRepository.findById(commentId)
                 .orElseThrow(() ->
-                        new CommentNotFoundException(commentId));
+                        new CommentNotFoundException());
     }
 
     /**
@@ -162,7 +166,7 @@ public class CommentServiceImpl implements CommentService {
         log.info("Was invoked method for : findCommentLocalDateTime");
 
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException(commentId))
+                .orElseThrow(() -> new CommentNotFoundException())
                 .getCreatedAt();
     }
 }
