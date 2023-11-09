@@ -33,7 +33,6 @@ import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
 @Transactional
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
-
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final AdMapper adMapper;
@@ -45,7 +44,7 @@ public class AdServiceImpl implements AdService {
      * @param id идентификатор объявления
      */
     @Override
-    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getAdById(#id).user.login")
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getById(#id).getUser().login")
     public void removeAd(Integer id) {
         log.info("Was invoked method for : removeAd");
 
@@ -60,6 +59,7 @@ public class AdServiceImpl implements AdService {
      * @return созданное объявление в виде объекта AdDto
      */
     @Override
+    @PreAuthorize("hasRole('USER')")
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
         log.info("Was invoked method for : addAd");
 
@@ -93,6 +93,7 @@ public class AdServiceImpl implements AdService {
      * @throws AdNotFoundException если объявление не найдено
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getById(#id).getUser().login")
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         log.info("Was invoked method for : updateAd");
 
@@ -125,11 +126,12 @@ public class AdServiceImpl implements AdService {
      * @param file новое изображение
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getById(#id).getUser().login")
     public void updateAdImage(Integer id, final MultipartFile file) {
         log.info("Was invoked method for : updateAdImage");
 
         Ad ad = adRepository.findById(id)
-                .orElseThrow(() -> new AdNotFoundException(id));
+                .orElseThrow(AdNotFoundException::new);
         AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
         ad.setImage(image);
         adRepository.save(ad);
@@ -161,8 +163,7 @@ public class AdServiceImpl implements AdService {
         log.info("Was invoked method for : getUserByAdId");
 
         return adRepository.findById(adId)
-                .orElseThrow(() ->
-                        new AdNotFoundException(adId))
+                .orElseThrow(AdNotFoundException::new)
                 .getUser();
     }
 }
