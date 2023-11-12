@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
         log.info("Was invoked method for : UpdateUserImage");
 
         User user = authUtils.getUserFromAuthentication(userRepository);
-        UserImage image = (UserImage) imageService.updateImage(file, new UserImage());
+        UserImage image = imageService.updateImage(file, new UserImage());
         user.setUserImage(image);
         userRepository.save(user);
     }
