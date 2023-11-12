@@ -2,9 +2,9 @@ package ru.skypro.homework.exceptions.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import ru.skypro.homework.exceptions.AdNotFoundException;
@@ -18,14 +18,69 @@ import javax.persistence.EntityNotFoundException;
 @RestControllerAdvice
 public class ExceptionHandlerClass {
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+    public String maxUploadSizeExceededExceptionHandler(MaxUploadSizeExceededException e) {
+    return "Превышен максимальный размер файла";
+    }
+
+    @ExceptionHandler(ImageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String imageNotFoundExceptionHandler(ImageNotFoundException e) {
+        return "Не найден Image по данному пути";
+    }
+
+    @ExceptionHandler(AdNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String adNotFoundExceptionHandler(AdNotFoundException e) {
+        return "Не найдено объявление";
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String commentNotFoundExceptionHandler(CommentNotFoundException e) {
+        return "Не найдено объявление";
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String entityNotFoundExceptionHandler(EntityNotFoundException e) {
+        return e.getMessage().replace("ru.skypro.homework.entity.", "");
+    }
+
+    @ExceptionHandler(CommentInconsistencyToAdException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String commentInconsistencyToAdExceptionHandler(CommentInconsistencyToAdException e) {
+        return "Не найдено соответствия между id комментария и объявления!";
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String accessDeniedExceptionHandler(AccessDeniedException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleException(Exception e) {
+        return e.getMessage();
+    }
+
+
+
     /**
      * Обрабатывает исключения и возвращает соответствующий HTTP-ответ с кодом состояния и сообщением.
      *
      * @param e исключение, которое нужно обработать
      * @return HTTP-ответ с кодом состояния и сообщением об ошибке
      */
+    /*
     @ExceptionHandler
     public ResponseEntity<String> handleException(Throwable e) {
+
+
+
+
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message = e.getMessage();
 
@@ -54,5 +109,9 @@ public class ExceptionHandlerClass {
 
         log.error(message);
         return ResponseEntity.status(status).body(message);
+
+
     }
+
+     */
 }
