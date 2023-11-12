@@ -88,11 +88,11 @@ public class UserServiceImpl implements UserService {
      * @throws UsernameNotFoundException если пользователь не найден
      */
     @Override
-    public void UpdateUserImage(final MultipartFile file) {
+    public void updateUserImage(final MultipartFile file) {
         log.info("Was invoked method for : UpdateUserImage");
 
         User user = getUserFromAuthentication(userRepository);
-        UserImage image = (UserImage) imageService.updateImage(file, new UserImage());
+        UserImage image = imageService.updateImage(file, new UserImage());
         user.setUserImage(image);
         userRepository.save(user);
     }

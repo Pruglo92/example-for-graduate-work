@@ -90,7 +90,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<Void> updateUserImage(@RequestParam("image") MultipartFile image) {
-        userService.UpdateUserImage(image);
+        userService.updateUserImage(image);
         return ResponseEntity.noContent().build();
     }
 }

@@ -64,7 +64,7 @@ public class AdServiceImpl implements AdService {
         log.info("Was invoked method for : addAd");
 
         User user = getUserFromAuthentication(userRepository);
-        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+        AdImage image = imageService.updateImage(file, new AdImage());
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
         adRepository.save(ad);
 
@@ -132,7 +132,7 @@ public class AdServiceImpl implements AdService {
 
         Ad ad = adRepository.findById(id)
                 .orElseThrow(AdNotFoundException::new);
-        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+        AdImage image = imageService.updateImage(file, new AdImage());
         ad.setImage(image);
         adRepository.save(ad);
     }

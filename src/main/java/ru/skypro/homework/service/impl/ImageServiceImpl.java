@@ -45,7 +45,7 @@ public class ImageServiceImpl implements ImageService {
      * @return обновленное изображение
      */
     @Override
-    public Image updateImage(final MultipartFile file, final Image image) {
+    public <T extends Image> T updateImage(final MultipartFile file, final T image) {
         log.info("Was invoked method for : updateImage");
         try {
             String fileName = file.getOriginalFilename();
