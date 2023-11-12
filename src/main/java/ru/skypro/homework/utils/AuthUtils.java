@@ -1,18 +1,24 @@
 package ru.skypro.homework.utils;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.entity.User;
 import ru.skypro.homework.repository.UserRepository;
+
 @Slf4j
-public final class AuthUtils {
+@Component
+@Transactional
+@RequiredArgsConstructor
+public class AuthUtils {
 
-    private AuthUtils() {
-    }
+    private final UserRepository userRepository;
 
-    public static User getUserFromAuthentication(final UserRepository userRepository) {
+    public User getUserFromAuthentication(final UserRepository userRepository) {
         log.info("Was invoked method for : getUserFromAuthentication");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

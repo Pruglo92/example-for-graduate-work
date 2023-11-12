@@ -16,8 +16,7 @@ import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
-
-import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
+import ru.skypro.homework.utils.AuthUtils;
 
 /**
  * Реализация сервиса пользователей.
@@ -32,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final ImageService imageService;
     private final UserRepository userRepository;
+    private final AuthUtils authUtils;
 
     /**
      * Устанавливает новый пароль для текущего пользователя.
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     public void setPassword(final String currentPassword, final String newPassword) {
         log.info("Was invoked method : setPassword");
 
-        User user = getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication(userRepository);
         if (encoder.matches(currentPassword, user.getPassword())) {
             user.setPassword(encoder.encode(newPassword));
             userRepository.save(user);
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getAuthorizedUser() {
         log.info("Was invoked method for : getAuthorizedUser");
 
-        return userMapper.toDto(getUserFromAuthentication(userRepository));
+        return userMapper.toDto(authUtils.getUserFromAuthentication(userRepository));
     }
 
     /**
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     public UpdateUserDto updateUser(final UpdateUserDto updateUser) {
         log.info("Was invoked method for : updateUser");
 
-        User user = getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication(userRepository);
         userMapper.updateUserFromDto(user, updateUser);
         var updatedUser = userRepository.save(user);
         return userMapper.updateUserDtoFromUser(updatedUser);
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     public void updateUserImage(final MultipartFile file) {
         log.info("Was invoked method for : UpdateUserImage");
 
-        User user = getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication(userRepository);
         UserImage image = imageService.updateImage(file, new UserImage());
         user.setUserImage(image);
         userRepository.save(user);
