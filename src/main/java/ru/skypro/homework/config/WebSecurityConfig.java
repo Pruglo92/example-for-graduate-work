@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -38,8 +39,7 @@ public class WebSecurityConfig extends GlobalMethodSecurityConfiguration {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/register",
-            "/ads"
+            "/register"
     };
 
     /**
@@ -60,6 +60,8 @@ public class WebSecurityConfig extends GlobalMethodSecurityConfiguration {
                         authorization ->
                                 authorization
                                         .mvcMatchers(AUTH_WHITELIST)
+                                        .permitAll()
+                                        .mvcMatchers(HttpMethod.GET, "/ads")
                                         .permitAll()
                                         .mvcMatchers("/ads/**", "/users/**")
                                         .authenticated())
