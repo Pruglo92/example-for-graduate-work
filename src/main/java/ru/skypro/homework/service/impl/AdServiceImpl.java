@@ -19,10 +19,9 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
+import ru.skypro.homework.utils.AuthUtils;
 
 import java.util.List;
-
-import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
 
 /**
  * Сервис объявлений.
@@ -37,6 +36,7 @@ public class AdServiceImpl implements AdService {
     private final UserRepository userRepository;
     private final AdMapper adMapper;
     private final ImageService imageService;
+    private final AuthUtils authUtils;
 
     /**
      * Удаляет объявление по его идентификатору.
@@ -59,12 +59,11 @@ public class AdServiceImpl implements AdService {
      * @return созданное объявление в виде объекта AdDto
      */
     @Override
-    @PreAuthorize("hasRole('USER')")
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
         log.info("Was invoked method for : addAd");
 
-        User user = getUserFromAuthentication(userRepository);
-        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+        User user = authUtils.getUserFromAuthentication(userRepository);
+        AdImage image = imageService.updateImage(file, new AdImage());
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
         adRepository.save(ad);
 
@@ -112,7 +111,7 @@ public class AdServiceImpl implements AdService {
     public AdsDto getAuthorizedUserAds() {
         log.info("Was invoked method for : getAuthorizedUserAds");
 
-        User user = getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication(userRepository);
         List<Ad> list = adRepository.getAdsByUserId(user.getId());
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
@@ -132,7 +131,7 @@ public class AdServiceImpl implements AdService {
 
         Ad ad = adRepository.findById(id)
                 .orElseThrow(AdNotFoundException::new);
-        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+        AdImage image = imageService.updateImage(file, new AdImage());
         ad.setImage(image);
         adRepository.save(ad);
     }

@@ -19,11 +19,10 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.CommentService;
+import ru.skypro.homework.utils.AuthUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static ru.skypro.homework.utils.AuthUtils.getUserFromAuthentication;
 
 /**
  * Сервис комментариев.
@@ -38,6 +37,7 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final AdRepository adRepository;
     private final CommentMapper commentMapper;
+    private final AuthUtils authUtils;
 
     /**
      * Добавляет комментарий к объявлению.
@@ -49,7 +49,6 @@ public class CommentServiceImpl implements CommentService {
      * @throws UsernameNotFoundException если пользователя не найдено
      */
     @Override
-    @PreAuthorize("hasRole('USER')")
     public CommentDto addCommentToAd(Integer adId,
                                      CreateOrUpdateCommentDto createOrUpdateCommentDto)
             throws AdNotFoundException, UsernameNotFoundException {
@@ -58,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentMapper.createCommentDtoToEntity(
                 getAdByAdId(adId),
                 createOrUpdateCommentDto,
-                getUserFromAuthentication(userRepository));
+                authUtils.getUserFromAuthentication(userRepository));
         commentRepository.save(comment);
         return commentMapper.entityToCommentDto(comment);
     }
@@ -87,7 +86,7 @@ public class CommentServiceImpl implements CommentService {
                     commentId,
                     createOrUpdateCommentDto,
                     findCommentLocalDateTime(commentId),
-                    getUserFromAuthentication(userRepository));
+                    authUtils.getUserFromAuthentication(userRepository));
             commentRepository.save(comment);
             return commentMapper.entityToCommentDto(comment);
         } else {
