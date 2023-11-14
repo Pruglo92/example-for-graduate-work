@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import java.util.Collections;
 /**
  * Реализация интерфейса UserDetailsService для получения информации о пользователе.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+        log.info("Was invoked method for : loadUserByUsername");
+
         final var user = userRepository.findByLogin(username).orElseThrow(() ->
                 new UsernameNotFoundException("Пользователь не найден: " + username));
         return new User(user.getLogin(), user.getPassword(),

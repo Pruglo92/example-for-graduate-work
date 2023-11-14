@@ -1,8 +1,8 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,28 +19,35 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
+import ru.skypro.homework.utils.AuthUtils;
 
 import java.util.List;
 
+/**
+ * Сервис объявлений.
+ * Осуществляет операции добавления, обновления, удаления и получения объявлений.
+ */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
-
     private final AdRepository adRepository;
     private final UserRepository userRepository;
     private final AdMapper adMapper;
     private final ImageService imageService;
+    private final AuthUtils authUtils;
 
     /**
      * Удаляет объявление по его идентификатору.
      *
-     * @param id             идентификатор объявления
-     * @param authentication объект аутентификации текущего пользователя
+     * @param id идентификатор объявления
      */
     @Override
-    public void removeAd(Integer id, Authentication authentication) {
-        authentication.isAuthenticated();
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getById(#id).getUser().login")
+    public void removeAd(Integer id) {
+        log.info("Was invoked method for : removeAd");
+
         adRepository.removeAdById(id);
     }
 
@@ -48,17 +55,16 @@ public class AdServiceImpl implements AdService {
      * Добавляет новое объявление.
      *
      * @param createOrUpdateAdDto объект с данными для создания или обновления объявления
-     * @param image               изображение для объявления
+     * @param file                изображение для объявления
      * @return созданное объявление в виде объекта AdDto
      */
     @Override
-    public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file, Authentication authentication) {
-        authentication.isAuthenticated();
-        User user = userRepository.findByLogin(authentication.getName()).orElseThrow();
-        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+    public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
+        log.info("Was invoked method for : addAd");
 
+        User user = authUtils.getUserFromAuthentication(userRepository);
+        AdImage image = imageService.updateImage(file, new AdImage());
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
-
         adRepository.save(ad);
 
         return adMapper.toAdDto(ad);
@@ -72,6 +78,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public ExtendedAdDto getAdById(Integer id) {
+        log.info("Was invoked method for : getAdById");
+
         return adMapper.toDto(adRepository.getAdById(id));
     }
 
@@ -84,7 +92,10 @@ public class AdServiceImpl implements AdService {
      * @throws AdNotFoundException если объявление не найдено
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getById(#id).getUser().login")
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
+        log.info("Was invoked method for : updateAd");
+
         AdImage image = adRepository.getAdById(id).getImage();
         Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id), image);
         adRepository.save(ad);
@@ -98,9 +109,10 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getAuthorizedUserAds() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer id = userRepository.findByLogin(authentication.getName()).orElseThrow().getId();
-        List<Ad> list = adRepository.getAdsByUserId(id);
+        log.info("Was invoked method for : getAuthorizedUserAds");
+
+        User user = authUtils.getUserFromAuthentication(userRepository);
+        List<Ad> list = adRepository.getAdsByUserId(user.getId());
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
         return new AdsDto(adsDtoList.size(), adsDtoList);
@@ -113,10 +125,13 @@ public class AdServiceImpl implements AdService {
      * @param file новое изображение
      */
     @Override
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == @adRepository.getById(#id).getUser().login")
     public void updateAdImage(Integer id, final MultipartFile file) {
+        log.info("Was invoked method for : updateAdImage");
+
         Ad ad = adRepository.findById(id)
-                .orElseThrow(() -> new AdNotFoundException(id));
-        AdImage image = (AdImage) imageService.updateImage(file, new AdImage());
+                .orElseThrow(AdNotFoundException::new);
+        AdImage image = imageService.updateImage(file, new AdImage());
         ad.setImage(image);
         adRepository.save(ad);
     }
@@ -128,6 +143,8 @@ public class AdServiceImpl implements AdService {
      */
     @Override
     public AdsDto getAllAds() {
+        log.info("Was invoked method for : getAllAds");
+
         List<Ad> list = adRepository.findAll();
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
@@ -142,10 +159,10 @@ public class AdServiceImpl implements AdService {
      * @throws AdNotFoundException если объявление не найдено
      */
     protected User getUserByAdId(Integer adId) {
-        return adRepository.findById(adId)
-                .orElseThrow(() ->
-                        new AdNotFoundException(adId))
-                .getUser();
+        log.info("Was invoked method for : getUserByAdId");
 
+        return adRepository.findById(adId)
+                .orElseThrow(AdNotFoundException::new)
+                .getUser();
     }
 }

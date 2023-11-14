@@ -38,7 +38,7 @@ create table if not exists users
         primary key,
     first_name    varchar(255)      not null,
     last_name     varchar(255)      not null,
-    login         varchar(255)      not null,
+    login         varchar(255)      not null        unique,
     password      varchar(255)      not null,
     phone         varchar(255)      not null,
     role          varchar(255)      not null,

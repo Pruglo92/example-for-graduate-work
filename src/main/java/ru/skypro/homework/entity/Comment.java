@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "comments")
 public class Comment extends BaseEntity {
+
     /**
      * Текст комментария.
      */

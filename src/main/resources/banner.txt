@@ -1,0 +1,21 @@
+${AnsiColor.BRIGHT_WHITE}
+FFFFFFFFFFFFFFFFFFFFFF                                                            tttt         hhhhhhh       TTTTTTTTTTTTTTTTTTTTTTT
+F::::::::::::::::::::F                                                         ttt:::t         h:::::h       T:::::::::::::::::::::T
+F::::::::::::::::::::F                                                         t:::::t         h:::::h       T:::::::::::::::::::::T
+FF::::::FFFFFFFFF::::F                                                         t:::::t         h:::::h       T:::::TT:::::::TT:::::T
+  F:::::F       FFFFFFooooooooooo   uuuuuu    uuuuuu rrrrr   rrrrrrrrr   ttttttt:::::ttttttt    h::::h hhhhh TTTTTT  T:::::T  TTTTTTeeeeeeeeeeee    aaaaaaaaaaaaa      mmmmmmm    mmmmmmm
+${AnsiColor.BLUE}  F:::::F           oo:::::::::::oo u::::u    u::::u r::::rrr:::::::::r  t:::::::::::::::::t    h::::hh:::::hhh      T:::::T      ee::::::::::::ee  a::::::::::::a   mm:::::::m  m:::::::mm
+  F::::::FFFFFFFFFFo:::::::::::::::ou::::u    u::::u r:::::::::::::::::r t:::::::::::::::::t    h::::::::::::::hh    T:::::T     e::::::eeeee:::::eeaaaaaaaaa:::::a m::::::::::mm::::::::::m
+  F:::::::::::::::Fo:::::ooooo:::::ou::::u    u::::u rr::::::rrrrr::::::rtttttt:::::::tttttt    h:::::::hhh::::::h   T:::::T    e::::::e     e:::::e         a::::a m::::::::::::::::::::::m
+  F:::::::::::::::Fo::::o     o::::ou::::u    u::::u  r:::::r     r:::::r      t:::::t          h::::::h   h::::::h  T:::::T    e:::::::eeeee::::::e  aaaaaaa:::::a m:::::mmm::::::mmm:::::m
+  F::::::FFFFFFFFFFo::::o     o::::ou::::u    u::::u  r:::::r     rrrrrrr      t:::::t          h:::::h     h:::::h  T:::::T    e:::::::::::::::::e aa::::::::::::a m::::m   m::::m   m::::m
+${AnsiColor.BRIGHT_RED}  F:::::F          o::::o     o::::ou::::u    u::::u  r:::::r                  t:::::t          h:::::h     h:::::h  T:::::T    e::::::eeeeeeeeeee a::::aaaa::::::a m::::m   m::::m   m::::m
+  F:::::F          o::::o     o::::ou:::::uuuu:::::u  r:::::r                  t:::::t    tttttth:::::h     h:::::h  T:::::T    e:::::::e         a::::a    a:::::a m::::m   m::::m   m::::m
+FF:::::::FF        o:::::ooooo:::::ou:::::::::::::::uur:::::r                  t::::::tttt:::::th:::::h     h:::::hTT:::::::TT  e::::::::e        a::::a    a:::::a m::::m   m::::m   m::::m
+F::::::::FF        o:::::::::::::::o u:::::::::::::::ur:::::r                  tt::::::::::::::th:::::h     h:::::hT:::::::::T   e::::::::eeeeeeeea:::::aaaa::::::a m::::m   m::::m   m::::m
+F::::::::FF         oo:::::::::::oo   uu::::::::uu:::ur:::::r                    tt:::::::::::tth:::::h     h:::::hT:::::::::T    ee:::::::::::::e a::::::::::aa:::am::::m   m::::m   m::::m
+FFFFFFFFFFF           ooooooooooo       uuuuuuuu  uuuurrrrrrr                      ttttttttttt  hhhhhhh     hhhhhhhTTTTTTTTTTT      eeeeeeeeeeeeee  aaaaaaaaaa  aaaammmmmm   mmmmmm   mmmmmm
+${AnsiColor.BRIGHT_WHITE}
+${application.title}
+${application.version}
+Powered by Spring Boot ${spring-boot.version}

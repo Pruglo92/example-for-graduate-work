@@ -8,7 +8,6 @@ import java.util.List;
  * @param results Список объявлений
  */
 public record AdsDto(
-
         Integer count,
         @NotEmpty
         List<AdDto> results

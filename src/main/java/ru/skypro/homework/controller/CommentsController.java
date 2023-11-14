@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.CommentDto;
@@ -32,9 +31,8 @@ public class CommentsController {
     /**
      * Удаляет комментарий в объявлении.
      *
-     * @param adId           Идентификатор объявления.
-     * @param commentId      Идентификатор комментария.
-     * @param authentication Информация об аутентификации пользователя.
+     * @param adId      Идентификатор объявления.
+     * @param commentId Идентификатор комментария.
      * @return Ответ со статусом HTTP 200 в случае успешного удаления комментария.
      */
     @DeleteMapping("/{adId}/comments/{commentId}")
@@ -44,11 +42,10 @@ public class CommentsController {
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ApiResponse(responseCode = "403", description = "Forbidden")
     @ApiResponse(responseCode = "404", description = "Not Found")
-    public ResponseEntity<Void> removeComment(@PathVariable("adId") Integer adId, @PathVariable("commentId") Integer commentId, Authentication authentication) {
-        {
-            commentService.removeComment(adId, commentId, authentication);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
+    public ResponseEntity<Void> removeComment(@PathVariable("adId") Integer adId,
+                                              @PathVariable("commentId") Integer commentId) {
+        commentService.removeComment(adId, commentId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -72,7 +69,6 @@ public class CommentsController {
      *
      * @param adId                     Идентификатор объявления.
      * @param createOrUpdateCommentDto Данные для создания или обновления комментария.
-     * @param authentication           Информация об аутентификации пользователя.
      * @return Ответ со статусом HTTP 200 и созданным комментарием в теле ответа.
      */
     @PostMapping("/{id}/comments")
@@ -82,9 +78,8 @@ public class CommentsController {
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ApiResponse(responseCode = "404", description = "Not found")
     public ResponseEntity<CommentDto> addCommentToAd(@PathVariable("id") Integer adId,
-                                                     @RequestBody @Valid CreateOrUpdateCommentDto createOrUpdateCommentDto,
-                                                     Authentication authentication) {
-        return ResponseEntity.ok(commentService.addCommentToAd(adId, createOrUpdateCommentDto, authentication));
+                                                     @RequestBody @Valid CreateOrUpdateCommentDto createOrUpdateCommentDto) {
+        return ResponseEntity.ok(commentService.addCommentToAd(adId, createOrUpdateCommentDto));
     }
 
     /**
@@ -93,7 +88,6 @@ public class CommentsController {
      * @param adId                     Идентификатор объявления.
      * @param commentId                Идентификатор комментария.
      * @param createOrUpdateCommentDto Данные для создания или обновления комментария.
-     * @param authentication           Информация об аутентификации пользователя.
      * @return Ответ со статусом HTTP 200 и обновленным комментарием в теле ответа.
      */
     @PatchMapping("/{adId}/comments/{commentId}")
@@ -105,20 +99,8 @@ public class CommentsController {
     @ApiResponse(responseCode = "404", description = "Not found")
     public ResponseEntity<CommentDto> updateCommentToAd(@PathVariable("adId") Integer adId,
                                                         @PathVariable("commentId") Integer commentId,
-                                                        @RequestBody @Valid CreateOrUpdateCommentDto createOrUpdateCommentDto,
-                                                        Authentication authentication) {
-        return ResponseEntity.ok(commentService.updateCommentToAd(adId, commentId, createOrUpdateCommentDto, authentication));
+                                                        @RequestBody @Valid CreateOrUpdateCommentDto createOrUpdateCommentDto) {
+        return ResponseEntity.ok(commentService.updateCommentToAd(adId, commentId, createOrUpdateCommentDto));
     }
-
-
-    /*
-    @ExceptionHandler(Exception.class)
-    public String exceptionHandler(Exception e) {
-        return e.getMessage();
-    }
-    //todo нужно перенести в ExceptionHandlerClass
-
-     */
-
 
 }

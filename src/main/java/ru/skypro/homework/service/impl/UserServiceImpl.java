@@ -1,9 +1,8 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,10 +16,12 @@ import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.service.UserService;
+import ru.skypro.homework.utils.AuthUtils;
 
 /**
  * Реализация сервиса пользователей.
  */
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final ImageService imageService;
     private final UserRepository userRepository;
+    private final AuthUtils authUtils;
 
     /**
      * Устанавливает новый пароль для текущего пользователя.
@@ -40,13 +42,13 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void setPassword(final String currentPassword, final String newPassword) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        userRepository.findByLogin(authentication.getName())
-                .filter(user -> encoder.matches(currentPassword, user.getPassword()))
-                .map(user -> {
-                    user.setPassword(encoder.encode(newPassword));
-                    return userRepository.save(user);
-                }).orElseThrow(() -> new BadCredentialsException("Неверный текущий пароль"));
+        log.info("Was invoked method : setPassword");
+
+        User user = authUtils.getUserFromAuthentication(userRepository);
+        if (encoder.matches(currentPassword, user.getPassword())) {
+            user.setPassword(encoder.encode(newPassword));
+            userRepository.save(user);
+        }
     }
 
     /**
@@ -57,10 +59,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getAuthorizedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByLogin(authentication.getName())
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+        log.info("Was invoked method for : getAuthorizedUser");
+
+        return userMapper.toDto(authUtils.getUserFromAuthentication(userRepository));
     }
 
     /**
@@ -72,14 +73,12 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UpdateUserDto updateUser(final UpdateUserDto updateUser) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByLogin(authentication.getName()).map(user -> {
-            user.setFirstName(updateUser.firstName());
-            user.setLastName(updateUser.lastName());
-            user.setPhone(updateUser.phone());
-            var updatedUser = userRepository.save(user);
-            return new UpdateUserDto(updatedUser.getFirstName(), updatedUser.getLastName(), updatedUser.getPhone());
-        }).orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+        log.info("Was invoked method for : updateUser");
+
+        User user = authUtils.getUserFromAuthentication(userRepository);
+        userMapper.updateUserFromDto(user, updateUser);
+        var updatedUser = userRepository.save(user);
+        return userMapper.updateUserDtoFromUser(updatedUser);
     }
 
     /**
@@ -89,11 +88,11 @@ public class UserServiceImpl implements UserService {
      * @throws UsernameNotFoundException если пользователь не найден
      */
     @Override
-    public void UpdateUserImage(final MultipartFile file) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByLogin(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
-        UserImage image = (UserImage) imageService.updateImage(file, new UserImage());
+    public void updateUserImage(final MultipartFile file) {
+        log.info("Was invoked method for : UpdateUserImage");
+
+        User user = authUtils.getUserFromAuthentication(userRepository);
+        UserImage image = imageService.updateImage(file, new UserImage());
         user.setUserImage(image);
         userRepository.save(user);
     }
