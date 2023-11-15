@@ -30,7 +30,7 @@ Content-Type: application/json
 
 {
 "username": "Hi@hi.ru",
-"password": "123456789",
+"password": "password",
 "firstName": "Hi",
 "lastName": "Hi",
 "phone": "+7 (000) 000-00-00",

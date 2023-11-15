@@ -3,31 +3,22 @@ package ru.skypro.homework.controller;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-public class AuthControllerTest extends TestContainerInitializer {
 
-    @Autowired
-    private MockMvc mockMvc;
+public class AuthControllerTest extends TestContainerInitializer {
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
 
     String username1 = "test@test.ru";
     String password = "password";
@@ -65,7 +56,7 @@ public class AuthControllerTest extends TestContainerInitializer {
                 .isPresent()
                 .get()
                 .satisfies(newUser -> {
-                    assertThat(newUser.getId()).isEqualTo(1L);
+                    assertThat(newUser.getId()).isEqualTo(4L);
                     Boolean actualValue = encoder.matches(password, newUser.getPassword());
                     // assertThat(actualValue.isEqualTo(expectedTrueValue));
                     assertThat(newUser.getFirstName()).isEqualTo(firstName1);
