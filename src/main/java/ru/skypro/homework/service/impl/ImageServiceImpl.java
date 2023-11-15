@@ -35,6 +35,8 @@ public class ImageServiceImpl implements ImageService {
 
     public static final String USER_DIR = "user.dir";
 
+    public static final String PREFIX = "src/main/resources";
+
     private final ImageRepository imageRepository;
 
     /**
@@ -50,7 +52,7 @@ public class ImageServiceImpl implements ImageService {
         try {
             String fileName = file.getOriginalFilename();
             String projectRoot = System.getProperty(USER_DIR);
-            Path path = Paths.get(projectRoot, uploadDir);
+            Path path = Paths.get(projectRoot, PREFIX + uploadDir);
 
             Files.createDirectories(path);
 
@@ -78,7 +80,7 @@ public class ImageServiceImpl implements ImageService {
     public Resource getImageFromFile(final String imageName) {
         log.info("Was invoked method for : getImageFromFile");
         String projectRoot = System.getProperty(USER_DIR);
-        Path imagePath = Paths.get(projectRoot, uploadDir);
+        Path imagePath = Paths.get(projectRoot, PREFIX + uploadDir);
         File imageFile = Paths.get(imagePath.toString(), imageName).toFile();
         if (imageFile.exists()) {
             Path path = Paths.get(imageFile.getPath());
