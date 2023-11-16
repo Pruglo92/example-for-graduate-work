@@ -4,6 +4,7 @@ spring:
 
 upload:
   dir: "/images/"
+  prefix: "src/test/resources"
 
 logging:
   level:
