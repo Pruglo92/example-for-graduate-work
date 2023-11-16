@@ -7,10 +7,11 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.skypro.homework.TestContainerInitializer;
 import ru.skypro.homework.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AuthControllerTest extends TestContainerInitializer {
 
@@ -27,6 +28,16 @@ public class AuthControllerTest extends TestContainerInitializer {
     String phone = "+7 (000) 000-00-00";
     String user = "USER";
     Boolean expectedTrueValue = true;
+
+    @Test
+    void test() {
+        assertTrue(userRepository.existsByLogin("user1@gmail.com"));
+    }
+
+    @Test
+    void test1() {
+        assertTrue(userRepository.existsByLogin("user2@gmail.com"));
+    }
 
     @Test
     void registerTest() throws Exception {

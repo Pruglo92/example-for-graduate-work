@@ -1,0 +1,12 @@
+spring:
+  liquibase:
+    change-log: "db.changelog/db.changelog-test.yml"
+
+upload:
+  dir: "/images/"
+
+logging:
+  level:
+    org:
+      springframework:
+        jdbc: DEBUG
