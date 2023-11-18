@@ -80,7 +80,7 @@ public class AdServiceImpl implements AdService {
     public ExtendedAdDto getAdById(Integer id) {
         log.info("Was invoked method for : getAdById");
 
-        return adMapper.toDto(adRepository.getAdById(id));
+        return adMapper.toDto(adRepository.getAdById(id).orElseThrow(AdNotFoundException::new));
     }
 
     /**
@@ -96,7 +96,7 @@ public class AdServiceImpl implements AdService {
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         log.info("Was invoked method for : updateAd");
 
-        AdImage image = adRepository.getAdById(id).getImage();
+        AdImage image = adRepository.getAdById(id).orElseThrow(AdNotFoundException::new).getImage();
         Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id), image);
         adRepository.save(ad);
         return adMapper.toAdDto(ad);

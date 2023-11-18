@@ -11,10 +11,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.skypro.homework.TestContainerInitializer;
+import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.AdService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AdsControllerTest extends TestContainerInitializer {
@@ -77,7 +81,12 @@ class AdsControllerTest extends TestContainerInitializer {
                 .getResponse();
 
         assertThat(responsePost.getStatus()).isEqualTo(200);
+    }
 
+    @Test
+    @Order(2)
+    @WithMockUser(authorities = "USER")
+    void getAdByIdByUserTest3() throws Exception {
         //должен дать 404
         MockHttpServletResponse responsePost2 = mockMvc
                 .perform(MockMvcRequestBuilders
@@ -86,7 +95,9 @@ class AdsControllerTest extends TestContainerInitializer {
                 .andReturn()
                 .getResponse();
 
-        assertThat(responsePost2.getStatus()).isEqualTo(200);
+        //ExtendedAdDto adDto = adService.getAdById(1100);
+
+        assertThat(responsePost2.getStatus()).isEqualTo(404);
     }
 
     @Test
@@ -103,7 +114,13 @@ class AdsControllerTest extends TestContainerInitializer {
 
         assertThat(responsePost.getStatus()).isEqualTo(200);
 
-        //должен дать 404
+    }
+
+    @Test
+    @Order(4)
+    @WithMockUser(authorities = "ADMIN")
+    void getAdByIdByAdminTest2() throws Exception {
+
         MockHttpServletResponse responsePost2 = mockMvc
                 .perform(MockMvcRequestBuilders
                         .get("/ads/11")
@@ -111,12 +128,16 @@ class AdsControllerTest extends TestContainerInitializer {
                 .andReturn()
                 .getResponse();
 
-        assertThat(responsePost2.getStatus()).isEqualTo(200);
+        ExtendedAdDto adDto = adService.getAdById(11);
+
+        assertNull(adDto);
+
+        //assertThat(responsePost2.getStatus()).isEqualTo(200);
     }
 
     @Test
     @Order(4)
-    void getAdByIdByUnauthorizedTest() throws Exception {
+    void getAd_ById_ByUnauthorizedUser_Test() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
                 .perform(MockMvcRequestBuilders
@@ -144,6 +165,7 @@ class AdsControllerTest extends TestContainerInitializer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString())
                 )
+                .andDo(print())
                 .andReturn()
                 .getResponse();
 
