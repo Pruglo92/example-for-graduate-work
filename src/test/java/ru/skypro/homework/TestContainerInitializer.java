@@ -7,20 +7,20 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@Testcontainers
+@Transactional
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public abstract class TestContainerInitializer {
 
     private static final String DATABASE_NAME = "postgres:15.3";
+    private static final PostgreSQLContainer<?> container;
     @Autowired
     protected MockMvc mockMvc;
-    private static final PostgreSQLContainer<?> container;
 
     static {
         container = new PostgreSQLContainer<>(DATABASE_NAME)

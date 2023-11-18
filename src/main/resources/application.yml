@@ -20,4 +20,4 @@ spring:
 
 upload:
   dir: "/images/"
-  prefix: "src/main/resources"
+  prefix: ""
