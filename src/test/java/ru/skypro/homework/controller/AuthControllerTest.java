@@ -1,7 +1,10 @@
 package ru.skypro.homework.controller;
 
 import net.minidev.json.JSONObject;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -11,8 +14,10 @@ import ru.skypro.homework.TestContainerInitializer;
 import ru.skypro.homework.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuthControllerTest extends TestContainerInitializer {
 
     @Autowired
@@ -30,16 +35,19 @@ public class AuthControllerTest extends TestContainerInitializer {
     Boolean expectedTrueValue = true;
 
     @Test
+    @Order(1)
     void test() {
         assertTrue(userRepository.existsByLogin("user1@gmail.com"));
     }
 
     @Test
+    @Order(2)
     void test1() {
         assertTrue(userRepository.existsByLogin("user2@gmail.com"));
     }
 
     @Test
+    @Order(3)
     void registerTest() throws Exception {
         JSONObject userJsonObject = new JSONObject();
         userJsonObject.put("username", username1);
@@ -75,5 +83,11 @@ public class AuthControllerTest extends TestContainerInitializer {
                     assertThat(newUser.getPhone()).isEqualTo(phone);
                     // assertThat(newUser.getRole()).isEqualTo(user);
                 });
+    }
+
+    @Test
+    @Order(4)
+    void test6() {
+        assertFalse(userRepository.existsByLogin("test@test.ru"));
     }
 }
