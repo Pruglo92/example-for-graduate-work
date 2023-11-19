@@ -1,24 +1,36 @@
 package ru.skypro.homework.controller;
 
 import net.minidev.json.JSONObject;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import ru.skypro.homework.TestContainerInitializer;
+import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.mapper.AdMapper;
+import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AdsControllerTest extends TestContainerInitializer {
@@ -28,39 +40,21 @@ class AdsControllerTest extends TestContainerInitializer {
     @Autowired
     private AdService adService;
     @Autowired
-    private AdsController adsController;
+    private UserMapper userMapper;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private AdMapper adMapper;
 
-    Integer pk = 1;
-    String authorFirstName = "User1FirstName";
-    String authorLastName = "User1LastName";
     String description = "Ad1Description";
-    String email = "user1@gmail.com";
-    String image = "/images/ad1-image.png";
-    String phone = "+7 (000) 000-00-01";
-    Integer price = 100;
+    Integer price = 1002;
     String title = "Ad1Title";
 
-/*
     @Test
-    @Order(1)
-    void getAdByIdTest1() {
-        assertThat(adService.getAdById(1)).isEqualTo(extendedAdDto);
-    }
-
-    @Test
-    @Order(2)
-    void getAdByIdNegativeTest() {
-        assertThat(adService.getAdById(-1)).isNull();
-    }*/
-
-
-    @Test
-    @Order(1)
-    void getAllAdsTest() throws Exception {
+    void getAllAdsTestX() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads")
+                .perform(get("/ads")
                 )
                 .andReturn()
                 .getResponse();
@@ -69,13 +63,11 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(2)
     @WithMockUser(authorities = "USER")
     void getAdByIdByUserTest2() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/1")
+                .perform(get("/ads/1")
                 )
                 .andReturn()
                 .getResponse();
@@ -84,30 +76,23 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(2)
     @WithMockUser(authorities = "USER")
     void getAdByIdByUserTest3() throws Exception {
-        //должен дать 404
         MockHttpServletResponse responsePost2 = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/1100")
+                .perform(get("/ads/1100")
                 )
                 .andReturn()
                 .getResponse();
-
-        //ExtendedAdDto adDto = adService.getAdById(1100);
 
         assertThat(responsePost2.getStatus()).isEqualTo(404);
     }
 
     @Test
-    @Order(3)
     @WithMockUser(authorities = "ADMIN")
     void getAdByIdByAdminTest() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/1")
+                .perform(get("/ads/1")
                 )
                 .andReturn()
                 .getResponse();
@@ -117,31 +102,23 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(4)
     @WithMockUser(authorities = "ADMIN")
     void getAdByIdByAdminTest2() throws Exception {
 
         MockHttpServletResponse responsePost2 = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/11")
+                .perform(get("/ads/11")
                 )
                 .andReturn()
                 .getResponse();
 
-        ExtendedAdDto adDto = adService.getAdById(11);
-
-        assertNull(adDto);
-
-        //assertThat(responsePost2.getStatus()).isEqualTo(200);
+        assertThat(responsePost2.getStatus()).isEqualTo(404);
     }
 
     @Test
-    @Order(4)
     void getAd_ById_ByUnauthorizedUser_Test() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/1")
+                .perform(get("/ads/1")
                 )
                 .andReturn()
                 .getResponse();
@@ -150,7 +127,6 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(4)
     @WithMockUser(value = "user2@gmail.com")
     void updateAdCorrectUserTest() throws Exception {
         JSONObject jsonObject = new JSONObject();
@@ -160,8 +136,7 @@ class AdsControllerTest extends TestContainerInitializer {
         jsonObject.put("title", title);
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .patch("/ads/2")
+                .perform(patch("/ads/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString())
                 )
@@ -177,7 +152,6 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(5)
     @WithMockUser(value = "user2@gmail.com")
     void updateAdWrongUserTest() throws Exception {
         JSONObject jsonObject = new JSONObject();
@@ -187,8 +161,7 @@ class AdsControllerTest extends TestContainerInitializer {
         jsonObject.put("title", title);
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .patch("/ads/1")
+                .perform(patch("/ads/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString())
                 )
@@ -199,7 +172,6 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(6)
     @WithMockUser(value = "user2@gmail.com")
     void updateAdNotFoundTest() throws Exception {
         JSONObject jsonObject = new JSONObject();
@@ -209,8 +181,7 @@ class AdsControllerTest extends TestContainerInitializer {
         jsonObject.put("title", title);
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .patch("/ads/100")
+                .perform(patch("/ads/100")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString())
                 )
@@ -221,7 +192,6 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(7)
     void updateAdUnauthorizedUserTest() throws Exception {
         JSONObject jsonObject = new JSONObject();
 
@@ -230,8 +200,7 @@ class AdsControllerTest extends TestContainerInitializer {
         jsonObject.put("title", title);
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .patch("/ads/1")
+                .perform(patch("/ads/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonObject.toString())
                 )
@@ -242,13 +211,11 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(8)
     @WithMockUser(value = "user2@gmail.com")
     void getAuthorizedUserAdsTest() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/me")
+                .perform(get("/ads/me")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andReturn()
@@ -258,12 +225,10 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @Order(9)
     void getUnauthorizedUserAdsTest() throws Exception {
 
         MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .get("/ads/me")
+                .perform(get("/ads/me")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andReturn()
@@ -274,7 +239,6 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @WithMockUser(value = "user2@gmail.com")
     @Test
-    @Order(10)
     void removeAdByWrongUserTest() throws Exception {
         assertThat(adService.getAllAds().count()).isEqualTo(2);
 
@@ -293,7 +257,6 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    @Order(11)
     void removeAdByAdminTest() throws Exception {
         assertThat(adService.getAllAds().count()).isEqualTo(2);
 
@@ -309,47 +272,10 @@ class AdsControllerTest extends TestContainerInitializer {
         assertThat(adService.getAllAds().count()).isEqualTo(1);
     }
 
-    /*@WithMockUser(authorities = "user1@gmail.com")
-    @Test
-    @Order(5)
-    void AddAdByUserTest() throws Exception {
-
-        Integer id = 1;
-        Integer adId = 1;
-        String image = "/images/ad1-image.png";
-        String title = "Ad1Title";
-        String description = "description";
-        Integer price = 100;
-
-        JSONObject properties = new JSONObject();
-
-
-        properties.put("description", description);
-        properties.put("price", price);
-        properties.put("title", title);
-
-        assertThat(adService.getAllAds().count()).isEqualTo(2);
-
-        MockHttpServletResponse responsePost = mockMvc
-                .perform(MockMvcRequestBuilders
-                        .post("/ads")
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                        .content(properties.toString())
-                )
-                .andReturn()
-                .getResponse();
-
-        assertThat(responsePost.getStatus()).isEqualTo(204);
-
-        assertThat(adService.getAllAds().count()).isEqualTo(3);
-    }*/
-
-
     @WithMockUser(value = "user1@gmail.com")
     @Test
-    @Order(12)
     void removeAdByCorrectUserTest() throws Exception {
-        assertThat(adService.getAllAds().count()).isEqualTo(1);
+        assertThat(adService.getAllAds().count()).isEqualTo(2);
 
         MockHttpServletResponse responsePost = mockMvc
                 .perform(MockMvcRequestBuilders
@@ -360,7 +286,128 @@ class AdsControllerTest extends TestContainerInitializer {
 
         assertThat(responsePost.getStatus()).isEqualTo(204);
 
-        assertThat(adService.getAllAds().count()).isEqualTo(0);
+        assertThat(adService.getAllAds().count()).isEqualTo(1);
+    }
+
+    //================================ТЕСТЫ БЕЗ ИСПОЛЬЗОВАНИЯ @WithMockUser======================================
+
+    @Test
+    @DisplayName("Экспериментальный тест")
+    void experimentalTest() throws Exception {
+        UserDto userDto = userMapper.toDto(userRepository.findByLogin("user1@gmail.com").orElseThrow());
+
+        mockMvc.perform(
+                        get("/users/me")
+                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.email").value(userDto.email()))
+                .andExpect(jsonPath("$.firstName").value(userDto.firstName()))
+                .andExpect(jsonPath("$.lastName").value(userDto.lastName()))
+                .andExpect(jsonPath("$.phone").value(userDto.phone()))
+                .andExpect(jsonPath("$.role").value(userDto.role().toString()))
+                .andExpect(jsonPath("$.image").value(userDto.image()));
+    }
+
+    @Test
+    @DisplayName("Получение списка всех объявлений")
+    void getAllAdsTest() throws Exception {
+        AdsDto allAdsDtoList = adService.getAllAds();
+
+        mockMvc.perform(get("/ads"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(allAdsDtoList.count()))
+                .andExpect(jsonPath("$.results[0].author").value(allAdsDtoList.results().get(0).author()))
+                .andExpect(jsonPath("$.results[0].image").value(allAdsDtoList.results().get(0).image()))
+                .andExpect(jsonPath("$.results[0].pk").value(allAdsDtoList.results().get(0).pk()))
+                .andExpect(jsonPath("$.results[0].price").value(allAdsDtoList.results().get(0).price()))
+                .andExpect(jsonPath("$.results[0].title").value(allAdsDtoList.results().get(0).title()))
+                .andExpect(jsonPath("$.results[1].author").value(allAdsDtoList.results().get(1).author()))
+                .andExpect(jsonPath("$.results[1].image").value(allAdsDtoList.results().get(1).image()))
+                .andExpect(jsonPath("$.results[1].pk").value(allAdsDtoList.results().get(1).pk()))
+                .andExpect(jsonPath("$.results[1].price").value(allAdsDtoList.results().get(1).price()))
+                .andExpect(jsonPath("$.results[1].title").value(allAdsDtoList.results().get(1).title()));
+    }
+
+    @Test
+    @DisplayName("Получение информации об объявлении по идентификатору, авторизованным юзером. Код ответа 200")
+    void getAdById_ForUserTest() throws Exception {
+        ExtendedAdDto extendedAdDto = adMapper.toDto(adRepository.getAdById(1).orElseThrow());
+
+        mockMvc.perform(
+                        get("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.authorFirstName").value(extendedAdDto.authorFirstName()))
+                .andExpect(jsonPath("$.authorLastName").value(extendedAdDto.authorLastName()))
+                .andExpect(jsonPath("$.description").value(extendedAdDto.description()))
+                .andExpect(jsonPath("$.email").value(extendedAdDto.email()))
+                .andExpect(jsonPath("$.image").value(extendedAdDto.image()))
+                .andExpect(jsonPath("$.phone").value(extendedAdDto.phone()))
+                .andExpect(jsonPath("$.price").value(extendedAdDto.price()))
+                .andExpect(jsonPath("$.title").value(extendedAdDto.title()));
+    }
+
+    @Test
+    @DisplayName("Запрос на получение информации об объявлении по идентификатору, неавторизованным юзером. Код ответа 401")
+    void getAdById_ForUnauthorizedUserTest() throws Exception {
+        mockMvc.perform(
+                        get("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("Unauthorized", "Unauthorized", StandardCharsets.UTF_8))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Запрос на получение информации об объявлении которого не существует, авторизованным юзером. Код ответа 404")
+    void getNotFoundAdById_ForUnauthorizedUserTest() throws Exception {
+        mockMvc.perform(
+                        get("/ads/9999")
+                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Изменение объявления создателем объявления. Код ответа 200")
+    void updateAd_CorrectUserTest() throws Exception {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("description", description);
+        jsonObject.put("price", price);
+        jsonObject.put("title", title);
+
+        mockMvc.perform(
+                        patch("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                .andExpect(status().isOk());
+
+        assertThat(adRepository.getAdById(1).orElseThrow().getDescription()).isEqualTo(description);
+        assertThat(adRepository.getAdById(1).orElseThrow().getPrice()).isEqualTo(price);
+        assertThat(adRepository.getAdById(1).orElseThrow().getTitle()).isEqualTo(title);
+    }
+
+    @Test
+    @DisplayName("Изменение объявления не создателем объявления. Код ответа 403")
+    void updateAd_WrongUserTest() throws Exception {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("description", description);
+        jsonObject.put("price", price);
+        jsonObject.put("title", title);
+
+        mockMvc.perform(
+                        patch("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user2@gmail.com", "password", StandardCharsets.UTF_8))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                .andExpect(status().isForbidden());
     }
 
 }
