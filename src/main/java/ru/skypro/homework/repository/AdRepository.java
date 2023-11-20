@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import ru.skypro.homework.entity.Ad;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AdRepository extends JpaRepository<Ad, Integer> {
@@ -22,7 +23,7 @@ public interface AdRepository extends JpaRepository<Ad, Integer> {
      * @param id идентификатор объявления
      * @return объект `Ad` или `null`, если объявление не найдено
      */
-    Ad getAdById(Integer id);
+    Optional<Ad> getAdById(Integer id);
 
     /**
      * Возвращает список объявлений, принадлежащих пользователю с заданным идентификатором.
