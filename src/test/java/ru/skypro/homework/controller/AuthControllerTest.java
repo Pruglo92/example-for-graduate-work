@@ -1,10 +1,7 @@
 package ru.skypro.homework.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,6 +18,7 @@ import ru.skypro.homework.repository.UserRepository;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static ru.skypro.homework.enums.Role.USER;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -40,7 +38,6 @@ public class AuthControllerTest extends TestContainerInitializer {
     private static final String lastName1 = "LastNameTest1";
     private static final String phone = "+7 (999) 999-99-99";
     private static final Role user = USER;
-    private final Boolean expectedTrueValue = true;
 
     private static Stream<Arguments> registerTestNotValidParams() throws Exception {
         String regJsonStr1 = mapper.writeValueAsString(new RegisterDto("hi@", password, firstName1, lastName1, phone, user));
@@ -61,6 +58,7 @@ public class AuthControllerTest extends TestContainerInitializer {
     @ParameterizedTest
     @MethodSource("registerTestNotValidParams")
     @DisplayName("Проверка регистрации, когда одно из полей не валидно")
+    @Order(1)
     public void registerWhenNotValidParamsTest(String registerJsonString, int expectedResponse) throws Exception {
         Long userNumberBefore = userRepository.count();
         // Попытка регистрации нового пользователя
@@ -80,7 +78,7 @@ public class AuthControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Проверка регистрации, когда все поля валидны")
-        //    @Order(3)
+    @Order(2)
     void registerTest() throws Exception {
         RegisterDto newRegisterDto = new RegisterDto(email, password, firstName1, lastName1, phone, user);
         String registerJsonString = mapper.writeValueAsString(newRegisterDto);
@@ -104,18 +102,17 @@ public class AuthControllerTest extends TestContainerInitializer {
                 .get()
                 .satisfies(newUser -> {
                     assertThat(newUser.getId()).isEqualTo(4L);
-                    Boolean actualValue = encoder.matches(password, newUser.getPassword());
-                    // assertThat(actualValue.isEqualTo(expectedTrueValue));
+                    assertTrue(encoder.matches(password, newUser.getPassword()));
                     assertThat(newUser.getFirstName()).isEqualTo(firstName1);
                     assertThat(newUser.getLastName()).isEqualTo(lastName1);
                     assertThat(newUser.getPhone()).isEqualTo(phone);
-                    // assertThat(newUser.getRole()).isEqualTo(user);
+                    assertEquals(newUser.getRole(), user);
                 });
     }
 
     @Test
     @DisplayName("Проверка регистрации, когда пользователь с идентичным логином уже зарегистрирован")
-        //   @Order(3)
+    @Order(3)
     void registerWhenTheSameLoginAlreadyExistsTest() throws Exception {
         RegisterDto newRegisterDto = new RegisterDto("user1@gmail.com", password, firstName1, lastName1, phone, user);
         String registerJsonString = mapper.writeValueAsString(newRegisterDto);
@@ -137,12 +134,11 @@ public class AuthControllerTest extends TestContainerInitializer {
         assertThat(userRepository.findByLogin("user1@gmail.com"))
                 .isPresent()
                 .get()
-                .satisfies(newUser -> {
-                    Boolean actualValue = encoder.matches(password, newUser.getPassword());
-                    // assertThat(actualValue.isEqualTo(expectedTrueValue));
-                    assertThat(newUser.getFirstName()).isNotEqualTo(firstName1);
-                    assertThat(newUser.getLastName()).isNotEqualTo(lastName1);
-                    assertThat(newUser.getPhone()).isNotEqualTo(phone);
+                .satisfies(currentUser -> {
+                    assertFalse(encoder.matches(password, currentUser.getPassword()));
+                    assertThat(currentUser.getFirstName()).isNotEqualTo(firstName1);
+                    assertThat(currentUser.getLastName()).isNotEqualTo(lastName1);
+                    assertThat(currentUser.getPhone()).isNotEqualTo(phone);
                 });
     }
 
