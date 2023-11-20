@@ -2,9 +2,7 @@ package ru.skypro.homework.controller;
 
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AdsControllerTest extends TestContainerInitializer {
 
     @Autowired
@@ -42,7 +39,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Получение объявлений авторизованного пользователя. Код ответа 200")
-    void getAds_forAuthorizedUserTest() throws Exception {
+    void givenAdsDtoListAndAuthorizedUser_whenGetUserAds_thenReturnOk() throws Exception {
 
         List<AdDto> adsDtoList = adMapper.toAdsDto(adRepository.getAdsByUserId(1));
         mockMvc.perform(
@@ -60,7 +57,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Получение объявлений неавторизованного пользователя. Код ответа 401")
-    void getAds_forUnauthorizedUserTest() throws Exception {
+    void givenUnauthorizedUser_whenGetUserAds_thenReturnIsUnauthorized() throws Exception {
 
         mockMvc.perform(
                         get("/ads/me")
@@ -70,7 +67,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Получение списка всех объявлений")
-    void getAllAdsTest() throws Exception {
+    void givenAsdDto_whenGetAllAds_thenReturnOk() throws Exception {
         AdsDto allAdsDtoList = adService.getAllAds();
 
         mockMvc.perform(get("/ads"))
@@ -90,7 +87,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Получение информации об объявлении по идентификатору, авторизованным юзером. Код ответа 200")
-    void getAdById_ForUserTest() throws Exception {
+    void givenExtendedAdDtoAndAdIdAndAuthorizedUser_whenGetAdsInfo_thenReturnOk() throws Exception {
         ExtendedAdDto extendedAdDto = adMapper.toDto(adRepository.getAdById(1).orElseThrow());
 
         mockMvc.perform(
@@ -110,7 +107,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Запрос на получение информации об объявлении по идентификатору, неавторизованным юзером. Код ответа 401")
-    void getAdById_ForUnauthorizedUserTest() throws Exception {
+    void givenUnauthorizedUser_whenGetAdsInfo_thenReturnIsUnauthorized() throws Exception {
         mockMvc.perform(
                         get("/ads/1")
                                 .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("Unauthorized", "Unauthorized", StandardCharsets.UTF_8))
@@ -120,7 +117,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Запрос на получение информации об объявлении которого не существует, авторизованным юзером. Код ответа 404")
-    void getNotFoundAdById_ForUnauthorizedUserTest() throws Exception {
+    void givenAuthorizedUserAndInvalidAdID_whenGetAdsInfo_thenReturnIsNotFound() throws Exception {
         mockMvc.perform(
                         get("/ads/9999")
                                 .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
@@ -130,7 +127,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Изменение объявления создателем объявления. Код ответа 200")
-    void updateAd_CorrectUserTest() throws Exception {
+    void givenJSONAndAdCreator_whenPatchAd_thenReturnIsOk() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -152,7 +149,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Изменение объявления не создателем объявления. Код ответа 403")
-    void updateAd_WrongUserTest() throws Exception {
+    void givenJSONAndAdNonCreator_whenPatchAd_isForbidden() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -170,7 +167,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Изменение объявления админом. Код ответа 200")
-    void updateAd_ForAdminTest() throws Exception {
+    void givenJSONAndRoleAdmin_whenPatchAd_thenReturnIsOk() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -192,7 +189,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Изменение несуществующего объявления админом. Код ответа 404")
-    void updateNotFoundAd_ForAdminTest() throws Exception {
+    void givenWrongAdIdAndRoleAdmin_whenPatchAd_thenReturnIsNotFound() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -210,7 +207,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Изменение объявления неавторизованным пользователем. Код ответа 401")
-    void updateAd_ForUnauthorizedUserTest() throws Exception {
+    void givenJSONAndUnauthorizedUser_whenPatchAd_thenReturnIsUnauthorized() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
 
