@@ -59,7 +59,7 @@ public class AuthControllerTest extends TestContainerInitializer {
     @MethodSource("registerTestNotValidParams")
     @DisplayName("Проверка регистрации, когда одно из полей не валидно")
     @Order(1)
-    public void registerWhenNotValidParamsTest(String registerJsonString, int expectedResponse) throws Exception {
+    public void givenRegisterDtoAndNotValidParams_whenRegister_thenReturnBadRequest(String registerJsonString, int expectedResponse) throws Exception {
         Long userNumberBefore = userRepository.count();
         // Попытка регистрации нового пользователя
         MockHttpServletResponse responsePost = mockMvc
@@ -79,7 +79,7 @@ public class AuthControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Проверка регистрации, когда все поля валидны")
     @Order(2)
-    void registerTest() throws Exception {
+    void givenRegisterDto_whenRegister_thenReturnOk() throws Exception {
         RegisterDto newRegisterDto = new RegisterDto(email, password, firstName1, lastName1, phone, user);
         String registerJsonString = mapper.writeValueAsString(newRegisterDto);
 
@@ -113,7 +113,7 @@ public class AuthControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Проверка регистрации, когда пользователь с идентичным логином уже зарегистрирован")
     @Order(3)
-    void registerWhenTheSameLoginAlreadyExistsTest() throws Exception {
+    void givenRegisterDtoAndSameLoginAlreadyExists_whenRegister_thenReturnBadRequest() throws Exception {
         RegisterDto newRegisterDto = new RegisterDto("user1@gmail.com", password, firstName1, lastName1, phone, user);
         String registerJsonString = mapper.writeValueAsString(newRegisterDto);
 
@@ -129,6 +129,12 @@ public class AuthControllerTest extends TestContainerInitializer {
 
         // Проверка, что отдан код ответа BAD_REQUEST
         assertThat(responsePost.getStatus()).isEqualTo(400);
+
+        // Проверка, что в БД по-прежнему один юзер с таким логином
+        assertThat(userRepository.findByLogin("user1@gmail.com")
+                .stream()
+                .count())
+                .isEqualTo(1);
 
         // Проверка, что в БД по-прежнему данные исходного юзера
         assertThat(userRepository.findByLogin("user1@gmail.com"))
