@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.skypro.homework.TestContainerInitializer;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
-import ru.skypro.homework.entity.Comment;
 import ru.skypro.homework.service.CommentService;
 
 import java.util.Collections;
@@ -25,7 +24,7 @@ class CommentsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Проверка удаления комментария в объявлении юзером")
-    @WithMockUser(value = "user1@gmail.com",roles = "USER")
+    @WithMockUser(value = "user1@gmail.com", roles = "USER")
     void givenAdIdAndCommentId_whenRemoveComment_thenCommentIsDeletedUser() throws Exception {
         commentService.removeComment(1, 1);
 
@@ -34,6 +33,7 @@ class CommentsControllerTest extends TestContainerInitializer {
 
         verify(commentService, times(1)).removeComment(1, 1);
     }
+
     @Test
     @DisplayName("Проверка удаления комментария в объявлении админом")
     @WithMockUser(authorities = "ADMIN")
@@ -45,14 +45,16 @@ class CommentsControllerTest extends TestContainerInitializer {
 
         verify(commentService, times(1)).removeComment(1, 1);
     }
+
     @Test
     @DisplayName("Тест удаления комментария в объявлении: отказано в доступе")
-    @WithMockUser(value = "user2@gmail.com",roles = "USER")
+    @WithMockUser(value = "user2@gmail.com", roles = "USER")
     void givenAdIdAndCommentId_whenRemoveComment_thenAccessDenied() throws Exception {
         // Проверка статуса 403 (FORBIDDEN)
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
                 .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
+
     @Test
     @DisplayName("Тест удаления комментария в объявлении: неавторизованный доступ")
     void givenAdIdAndCommentId_whenRemoveComment_thenUnauthorizedAccess() throws Exception {
@@ -60,6 +62,7 @@ class CommentsControllerTest extends TestContainerInitializer {
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
+
     @Test
     @DisplayName("Получение комментариев объявления:авторизованный доступ")
     @WithMockUser(roles = "USER")
@@ -73,6 +76,7 @@ class CommentsControllerTest extends TestContainerInitializer {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
     @Test
     @DisplayName("Получение комментариев объявления: неавторизованный доступ")
     void givenAdId_whenGetCommentsByAd_thenCommentsReturned_isUnauthorized() throws Exception {
