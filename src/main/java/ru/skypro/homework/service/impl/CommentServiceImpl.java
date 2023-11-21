@@ -21,7 +21,6 @@ import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.CommentService;
 import ru.skypro.homework.utils.AuthUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -81,13 +80,9 @@ public class CommentServiceImpl implements CommentService {
         log.info("Was invoked method for : updateCommentToAd");
 
         if (adId.equals(getCommentByCommentId(commentId).getAd().getId())) {
-            Comment comment = commentMapper.updateCommentDtoToEntity(
-                    getAdByAdId(adId),
-                    commentId,
-                    createOrUpdateCommentDto,
-                    findCommentLocalDateTime(commentId),
-                    commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new).getUser());
-            commentRepository.save(comment);
+            Comment comment = getCommentByCommentId(commentId);
+            Comment updatedComment = commentMapper.updateCommentDtoToEntity(comment, createOrUpdateCommentDto);
+            commentRepository.save(updatedComment);
             return commentMapper.entityToCommentDto(comment);
         } else {
             throw new CommentInconsistencyToAdException();
@@ -151,18 +146,4 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(CommentNotFoundException::new);
     }
 
-    /**
-     * Возвращает комментарий по его идентификатору.
-     *
-     * @param commentId идентификатор комментария
-     * @return комментарий
-     * @throws CommentNotFoundException если комментарий не найден
-     */
-    protected LocalDateTime findCommentLocalDateTime(Integer commentId) {
-        log.info("Was invoked method for : findCommentLocalDateTime");
-
-        return commentRepository.findById(commentId)
-                .orElseThrow(CommentNotFoundException::new)
-                .getCreatedAt();
-    }
 }
