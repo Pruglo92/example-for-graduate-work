@@ -2,6 +2,7 @@ package ru.skypro.homework.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
@@ -44,21 +45,13 @@ public interface CommentMapper {
     Comment createCommentDtoToEntity(Ad ad, CreateOrUpdateCommentDto createOrUpdateCommentDto, User user);
 
     /**
-     * Обновляет объект `Comment` на основе данных из `Ad`, `CreateOrUpdateCommentDto`, `LocalDateTime` и `User`.
+     * Обновляет объект `Comment` обновленным текстом комментария из `CreateOrUpdateCommentDto` .
      *
-     * @param ad                       объявление, к которому относится комментарий
-     * @param commentId                идентификатор комментария для обновления
      * @param createOrUpdateCommentDto данные для обновления комментария
-     * @param createdAt                дата и время создания комментария
-     * @param user                     пользователь, обновляющий комментарий
-     * @return объект `Comment`
+     * @param comment                  существующий объект `Comment`
      */
-    @Mapping(target = "id", source = "commentId")
-    @Mapping(target = "user", source = "user")
-    @Mapping(target = "ad", source = "ad")
-    Comment updateCommentDtoToEntity(Ad ad, Integer commentId,
-                                     CreateOrUpdateCommentDto createOrUpdateCommentDto,
-                                     LocalDateTime createdAt, User user);
+    Comment updateCommentDtoToEntity(@MappingTarget Comment comment,
+                                     CreateOrUpdateCommentDto createOrUpdateCommentDto);
 
     /**
      * Преобразует список объектов `CommentDto` в объект `CommentsDto`.

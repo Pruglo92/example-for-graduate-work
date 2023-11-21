@@ -2,6 +2,7 @@ package ru.skypro.homework.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
@@ -47,23 +48,21 @@ public interface AdMapper {
      * @param image               изображение, связанное с объявлением
      * @return объект `Ad`
      */
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "image", source = "image")
     @Mapping(target = "user", source = "user")
     Ad createAdDtoToAd(CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
 
+
     /**
-     * Обновляет объект `Ad` на основе данных из `CreateOrUpdateAdDto` и `User`.
+     * Обновляет объект `Ad`, перекладывая данные из полей `CreateOrUpdateAdDto` .
      *
-     * @param id                  идентификатор объявления для обновления
      * @param createOrUpdateAdDto данные для обновления объявления
-     * @param user                пользователь, обновляющий объявление
-     * @param image               изображение, связанное с объявлением
-     * @return объект `Ad`
+     * @param ad                  существующий объект `Ad`
      */
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "user", source = "user")
-    Ad updateAdDtoToAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto, User user, AdImage image);
+    Ad updateAdDtoToAd(@MappingTarget Ad ad, CreateOrUpdateAdDto createOrUpdateAdDto);
+
 
     /**
      * Преобразует список объектов `Ad` в список объектов `AdDto`.
