@@ -86,7 +86,7 @@ public class CommentServiceImpl implements CommentService {
                     commentId,
                     createOrUpdateCommentDto,
                     findCommentLocalDateTime(commentId),
-                    authUtils.getUserFromAuthentication(userRepository));
+                    commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new).getUser());
             commentRepository.save(comment);
             return commentMapper.entityToCommentDto(comment);
         } else {
