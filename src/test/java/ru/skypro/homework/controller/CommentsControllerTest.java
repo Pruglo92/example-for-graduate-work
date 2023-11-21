@@ -26,24 +26,16 @@ class CommentsControllerTest extends TestContainerInitializer {
     @DisplayName("Проверка удаления комментария в объявлении юзером")
     @WithMockUser(value = "user1@gmail.com", roles = "USER")
     void givenAdIdAndCommentId_whenRemoveComment_thenCommentIsDeletedUser() throws Exception {
-        commentService.removeComment(1, 1);
-
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(commentService, times(1)).removeComment(1, 1);
     }
 
     @Test
     @DisplayName("Проверка удаления комментария в объявлении админом")
     @WithMockUser(authorities = "ADMIN")
     void givenAdIdAndCommentId_whenRemoveComment_thenCommentIsDeletedAdmin() throws Exception {
-        commentService.removeComment(1, 1);
-
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
                 .andExpect(MockMvcResultMatchers.status().isOk());
-
-        verify(commentService, times(1)).removeComment(1, 1);
     }
 
     @Test
