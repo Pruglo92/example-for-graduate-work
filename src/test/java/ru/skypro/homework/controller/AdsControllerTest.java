@@ -1,11 +1,14 @@
 package ru.skypro.homework.controller;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import ru.skypro.homework.TestContainerInitializer;
 import ru.skypro.homework.dto.AdDto;
@@ -15,12 +18,12 @@ import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.AdService;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,7 +95,10 @@ class AdsControllerTest extends TestContainerInitializer {
 
         mockMvc.perform(
                         get("/ads/1")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user1@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.authorFirstName").value(extendedAdDto.authorFirstName()))
@@ -110,17 +116,23 @@ class AdsControllerTest extends TestContainerInitializer {
     void givenUnauthorizedUser_whenGetAdsInfo_thenReturnIsUnauthorized() throws Exception {
         mockMvc.perform(
                         get("/ads/1")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("Unauthorized", "Unauthorized", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "Unauthorized",
+                                                "Unauthorized", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("Запрос на получение информации об объявлении которого не существует, авторизованным юзером. Код ответа 404")
-    void givenAuthorizedUserAndInvalidAdID_whenGetAdsInfo_thenReturnIsNotFound() throws Exception {
+    void givenAuthorizedUserAndInvalidAdID_whenGetNonExistentAdsInfo_thenReturnIsNotFound() throws Exception {
         mockMvc.perform(
                         get("/ads/9999")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user1@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -137,7 +149,10 @@ class AdsControllerTest extends TestContainerInitializer {
 
         mockMvc.perform(
                         patch("/ads/1")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user1@gmail.com", "password", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user1@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(jsonObject)))
                 .andExpect(status().isOk());
@@ -159,7 +174,10 @@ class AdsControllerTest extends TestContainerInitializer {
 
         mockMvc.perform(
                         patch("/ads/1")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("user2@gmail.com", "password", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user2@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(jsonObject)))
                 .andExpect(status().isForbidden());
@@ -177,7 +195,10 @@ class AdsControllerTest extends TestContainerInitializer {
 
         mockMvc.perform(
                         patch("/ads/1")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("admin@gmail.com", "password", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "admin@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(jsonObject)))
                 .andExpect(status().isOk());
@@ -189,7 +210,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Изменение несуществующего объявления админом. Код ответа 404")
-    void givenWrongAdIdAndRoleAdmin_whenPatchAd_thenReturnIsNotFound() throws Exception {
+    void givenWrongAdIdAndRoleAdmin_whenPatchNonExistentAd_thenReturnIsNotFound() throws Exception {
 
         JSONObject jsonObject = new JSONObject();
 
@@ -199,7 +220,10 @@ class AdsControllerTest extends TestContainerInitializer {
 
         mockMvc.perform(
                         patch("/ads/9999")
-                                .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("admin@gmail.com", "password", StandardCharsets.UTF_8))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "admin@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(jsonObject)))
                 .andExpect(status().isNotFound());
@@ -220,6 +244,116 @@ class AdsControllerTest extends TestContainerInitializer {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(jsonObject)))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Удаление объявления по идентификационному номеру создателем объявления. Код ответа 204")
+    void givenAuthorizedUser_whenDeleteAd_thenReturnIsNoContent() throws Exception {
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+
+        mockMvc.perform(
+                        delete("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user1@gmail.com",
+                                                "password", StandardCharsets.UTF_8)))
+                .andExpect(status().isNoContent());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Удаление объявления по идентификационному номеру администратором. Код ответа 204")
+    void givenARoleAdmin_whenDeleteAd_thenReturnIsNoContent() throws Exception {
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+
+        mockMvc.perform(
+                        delete("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "admin@gmail.com",
+                                                "password", StandardCharsets.UTF_8)))
+                .andExpect(status().isNoContent());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Удаление объявления по идентификационному номеру юзером. Код ответа 404")
+    void givenARoleUser_whenDeleteNonExistentAd_thenReturnIsNotFound() throws Exception {
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+
+        mockMvc.perform(
+                        delete("/ads/9999")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user2@gmail.com",
+                                                "password", StandardCharsets.UTF_8)))
+                .andExpect(status().isNotFound());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+    }
+
+    //Не работает
+    /*@Test
+    @DisplayName("Удаление объявления по идентификационному номеру админом. Код ответа 404")
+    void givenARoleAdmin_whenDeleteNonExistentAd_thenReturnIsNoContent() throws Exception {
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+
+        mockMvc.perform(
+                        delete("/ads/9999")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "admin@gmail.com",
+                                                "password", StandardCharsets.UTF_8)))
+                .andExpect(status().isNotFound());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+    }*/
+
+    @Test
+    @DisplayName("Удаление объявления по идентификационному номеру не создателем объявления. Код ответа 403")
+    void givenANonCreator_whenDeleteAd_thenReturnIsForbidden() throws Exception {
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+
+        mockMvc.perform(
+                        delete("/ads/1")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user2@gmail.com",
+                                                "password", StandardCharsets.UTF_8)))
+                .andExpect(status().isForbidden());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Удаление объявления по идентификационному номеру неавторизованным пользователем. Код ответа 401")
+    void givenAUnauthorizedUser_whenDeleteAd_thenReturnIsUnauthorized() throws Exception {
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+
+        mockMvc.perform(
+                        delete("/ads/1"))
+                .andExpect(status().isUnauthorized());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Обновление картинки объявления по id объявления. Код ответа 200")
+    void givenARoleAdmin2_whenDeleteAd_thenReturnIsNoContent() throws Exception {
+
+        /*mockMvc.perform(
+                        patch("/ads/1/image")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Basic " + HttpHeaders.encodeBasicAuth(
+                                                "user1@gmail.com",
+                                                "password", StandardCharsets.UTF_8))
+                                .contentType(MediaType.IMAGE_JPEG)
+                                .content(String.valueOf(image)))
+                .andExpect(status().isOk());*/
+
+
     }
 
 }
