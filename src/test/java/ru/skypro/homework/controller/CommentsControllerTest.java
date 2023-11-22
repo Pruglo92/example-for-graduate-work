@@ -2,25 +2,13 @@ package ru.skypro.homework.controller;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.skypro.homework.TestContainerInitializer;
-import ru.skypro.homework.dto.CommentDto;
-import ru.skypro.homework.dto.CommentsDto;
-import ru.skypro.homework.service.CommentService;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Mockito.*;
 
 class CommentsControllerTest extends TestContainerInitializer {
-
-    @Mock
-    private CommentService commentService;
 
     @Test
     @DisplayName("Проверка удаления комментария в объявлении юзером")
@@ -59,11 +47,6 @@ class CommentsControllerTest extends TestContainerInitializer {
     @DisplayName("Получение комментариев объявления:авторизованный доступ")
     @WithMockUser(roles = "USER")
     void givenAdId_whenGetCommentsByAd_thenCommentsReturned() throws Exception {
-        List<CommentDto> comments = Collections.emptyList();
-        CommentsDto commentsDto = new CommentsDto(0, comments);
-
-        when(commentService.getCommentsByAd(1)).thenReturn(commentsDto);
-
         mockMvc.perform(MockMvcRequestBuilders.get("/ads/{adId}/comments", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -72,13 +55,38 @@ class CommentsControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Получение комментариев объявления: неавторизованный доступ")
     void givenAdId_whenGetCommentsByAd_thenCommentsReturned_isUnauthorized() throws Exception {
-        List<CommentDto> comments = Collections.emptyList();
-        CommentsDto commentsDto = new CommentsDto(0, comments);
-
-        when(commentService.getCommentsByAd(1)).thenReturn(commentsDto);
-
         mockMvc.perform(MockMvcRequestBuilders.get("/ads/{adId}/comments", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Добавление комментария объявления: авторизованный доступ")
+    @WithMockUser(value = "user1@gmail.com", roles = "USER")
+    void givenAdIdAndRequestBody_whenAddComment_thenReturnAddedComment() throws Exception {
+        String requestBody = "{\"text\": \"Новый комментарий\"}";
+        mockMvc.perform(MockMvcRequestBuilders.post("/ads/{adId}/comments", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+    @Test
+    @DisplayName("Добавление комментария объявления: не авторизованный доступ")
+    void givenAdIdAndRequestBody_whenAddComment_thenReturnAddedComment_isUnauthorized() throws Exception {
+        String requestBody = "{\"text\": \"Новый комментарий\"}";
+        mockMvc.perform(MockMvcRequestBuilders.post("/ads/{adId}/comments", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+    @Test
+    @DisplayName("Обновление комментария объявления: авторизованный доступ")
+    @WithMockUser(value = "user1@gmail.com", roles = "USER")
+    void givenCommentIdAndRequestBody_whenUpdateComment_thenReturnUpdatedComment() throws Exception {
+        String requestBody = "{\"text\": \"Обновленный комментарий\"}";
+        mockMvc.perform(MockMvcRequestBuilders.put("/ads/{adId}/comments/{commentId}", 1, 2,"старый коммент")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
