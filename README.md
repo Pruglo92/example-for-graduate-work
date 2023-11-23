@@ -72,16 +72,13 @@ docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
 * IntelliJ IDEA
 * Java 17
 * org.springframework.boot
-* org.springframework.data
-* org.springframework.security
-* org.springframework.kafka
-* org.springdoc
-* org.liquibase
-* org.junit.jupiter
+* org.postgresql
 * org.projectlombok
+* org.liquibase
+* org.springdoc
+* org.mapstruct
+* org.springframework.security
 * org.testcontainers
-* org.apache.commons
-* io.swagger.core.v3
 * Сборка с помощью org.apache.maven
 ```
 <hr>
