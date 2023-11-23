@@ -229,7 +229,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Обновление картинки объявления по id объявления. Код ответа 200")
-    void givenARoleAdmin2_whenDeleteAd_thenReturnIsNoContent() throws Exception {
+    void givenImageAndAdId_whenUpdateAdImage_thenReturnIsOk() throws Exception {
         Integer adId = 1;
         ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
         MockMultipartFile image = new MockMultipartFile(
