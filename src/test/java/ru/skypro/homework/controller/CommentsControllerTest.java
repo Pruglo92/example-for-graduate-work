@@ -12,7 +12,7 @@ class CommentsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Проверка удаления комментария в объявлении юзером")
-    @WithMockUser(value = "user1@gmail.com", roles = "USER")
+    @WithMockUser(value = "user1@gmail.com")
     void givenAdIdAndCommentId_whenRemoveComment_thenCommentIsDeletedUser() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
                 .andExpect(MockMvcResultMatchers.status().isOk());
@@ -28,7 +28,7 @@ class CommentsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Тест удаления комментария в объявлении: отказано в доступе")
-    @WithMockUser(value = "user2@gmail.com", roles = "USER")
+    @WithMockUser(value = "user2@gmail.com")
     void givenAdIdAndCommentId_whenRemoveComment_thenAccessDenied() throws Exception {
         // Проверка статуса 403 (FORBIDDEN)
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
@@ -42,10 +42,25 @@ class CommentsControllerTest extends TestContainerInitializer {
         mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 1, 1))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
-
+    @Test
+    @DisplayName("Тест удаления комментария в объявлении: отсутствует объявление")
+    @WithMockUser(value = "user1@gmail.com")
+    void givenAdIdAndCommentId_whenRemoveComment_thenNotFound() throws Exception {
+        // Проверка статуса 404 (Not Found)
+        mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 999, 1))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+    @Test
+    @DisplayName("Тест удаления комментария в объявлении: отсутствует объявление при наличии прав администратора")
+    @WithMockUser(authorities = "ADMIN")
+    void givenAdIdAndCommentIdAndAdminUser_whenRemoveComment_thenNotFound() throws Exception {
+        // Проверка статуса 404 (Not Found)
+        mockMvc.perform(MockMvcRequestBuilders.delete("/ads/{adId}/comments/{commentId}", 999, 1))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
     @Test
     @DisplayName("Получение комментариев объявления:авторизованный доступ")
-    @WithMockUser(roles = "USER")
+    @WithMockUser(value = "user1@gmail.com")
     void givenAdId_whenGetCommentsByAd_thenCommentsReturned() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/ads/{adId}/comments", 1)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -62,7 +77,7 @@ class CommentsControllerTest extends TestContainerInitializer {
 
     @Test
     @DisplayName("Добавление комментария объявления: авторизованный доступ")
-    @WithMockUser(value = "user1@gmail.com", roles = "USER")
+    @WithMockUser(value = "user1@gmail.com")
     void givenAdIdAndRequestBody_whenAddComment_thenReturnAddedComment() throws Exception {
         String requestBody = "{\"text\": \"Новый комментарий\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/ads/{adId}/comments", 1)
@@ -80,13 +95,43 @@ class CommentsControllerTest extends TestContainerInitializer {
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
     @Test
+    @DisplayName("Обновление комментария объявления: другим юзером")
+    @WithMockUser(value = "user2@gmail.com")
+    void givenCommentIdAndRequestBody_whenUpdateComment_thenReturnUpdatedComment_isForbidden() throws Exception {
+        String requestBody = "{\"text\": \"Обновленный комментарий\"}";
+        mockMvc.perform(MockMvcRequestBuilders.patch("/ads/{adId}/comments/{commentId}", 1, 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+    @Test
     @DisplayName("Обновление комментария объявления: авторизованный доступ")
-    @WithMockUser(value = "user1@gmail.com", roles = "USER")
+    @WithMockUser(value = "user1@gmail.com")
     void givenCommentIdAndRequestBody_whenUpdateComment_thenReturnUpdatedComment() throws Exception {
         String requestBody = "{\"text\": \"Обновленный комментарий\"}";
-        mockMvc.perform(MockMvcRequestBuilders.put("/ads/{adId}/comments/{commentId}", 1, 2,"старый коммент")
+        mockMvc.perform(MockMvcRequestBuilders.patch("/ads/{adId}/comments/{commentId}", 1, 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+    @Test
+    @DisplayName("Обновление комментария объявления: админом")
+    @WithMockUser(authorities = "ADMIN")
+    void givenCommentIdAndRequestBody_whenUpdateComment_thenReturnUpdatedComment_isAdmin() throws Exception {
+        String requestBody = "{\"text\": \"Обновленный комментарий\"}";
+        mockMvc.perform(MockMvcRequestBuilders.patch("/ads/{adId}/comments/{commentId}", 1, 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+    @Test
+    @DisplayName("Обновление комментария объявления: не авторизованный доступ")
+    @WithMockUser(value = "user3@gmail.com")
+    void givenCommentIdAndRequestBody_whenUpdateComment_thenReturnUpdatedComment_isUnauthorized() throws Exception {
+        String requestBody = "{\"text\": \"Обновленный комментарий\"}";
+        mockMvc.perform(MockMvcRequestBuilders.patch("/ads/{adId}/comments/{commentId}", 1, 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 }
