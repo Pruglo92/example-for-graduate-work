@@ -4,8 +4,12 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import ru.skypro.homework.TestContainerInitializer;
 import ru.skypro.homework.dto.AdDto;
@@ -19,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -222,4 +227,33 @@ class AdsControllerTest extends TestContainerInitializer {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @DisplayName("Обновление картинки объявления по id объявления. Код ответа 200")
+    void givenARoleAdmin2_whenDeleteAd_thenReturnIsNoContent() throws Exception {
+        Integer adId = 1;
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads/{id}/image", adId)
+                        .file(image)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .header(HttpHeaders.AUTHORIZATION,
+                                "Basic " + HttpHeaders.encodeBasicAuth(
+                                        "user1@gmail.com",
+                                        "password", StandardCharsets.UTF_8))
+                        .with(request -> {
+                            request.setMethod("PATCH");
+                            return request;
+                        }))
+
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Image updated successfully"));
+
+        assertEquals(adRepository.getAdById(adId).orElseThrow().getImage().getFileName(), "ad2-image.png");
+    }
 }
