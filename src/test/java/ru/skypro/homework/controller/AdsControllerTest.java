@@ -24,8 +24,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,9 +37,9 @@ class AdsControllerTest extends TestContainerInitializer {
     @Autowired
     private AdMapper adMapper;
 
-    String description = "Ad1Description";
-    Integer price = 1002;
-    String title = "Ad1Title";
+    private final static String description = "Ad2Description";
+    private final static Integer price = 1002;
+    private final static String title = "Ad1Title";
 
     @Test
     @DisplayName("Получение объявлений авторизованного пользователя. Код ответа 200")
@@ -252,8 +250,8 @@ class AdsControllerTest extends TestContainerInitializer {
     }
 
     @Test
-    @DisplayName("Обновление картинки объявления по id объявления. Код ответа 200")
-    void givenImageAndAdId_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+    @DisplayName("Обновление картинки объявления по id объявления, создателем объявления. Код ответа 200")
+    void givenImageAndAdIdCreatorUser_whenUpdateAdImage_thenReturnIsOk() throws Exception {
         Integer adId = 1;
         ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
         MockMultipartFile image = new MockMultipartFile(
@@ -280,6 +278,7 @@ class AdsControllerTest extends TestContainerInitializer {
 
         assertEquals(adRepository.getAdById(adId).orElseThrow().getImage().getFileName(), "ad2-image.png");
     }
+
     @Test
     @DisplayName("Удаление объявления по идентификационному номеру создателем объявления. Код ответа 204")
     void givenAuthorizedUser_whenDeleteAd_thenReturnIsNoContent() throws Exception {
@@ -364,5 +363,205 @@ class AdsControllerTest extends TestContainerInitializer {
                 .andExpect(status().isUnauthorized());
 
         assertThat(adRepository.findAll().size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Обновление картинки объявления по id объявления, администратором. Код ответа 200")
+    void givenImageAndAdIdRoleAdmin_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+        Integer adId = 1;
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads/{id}/image", adId)
+                        .file(image)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .header(HttpHeaders.AUTHORIZATION,
+                                "Basic " + HttpHeaders.encodeBasicAuth(
+                                        "admin@gmail.com",
+                                        "password", StandardCharsets.UTF_8))
+                        .with(request -> {
+                            request.setMethod("PATCH");
+                            return request;
+                        }))
+
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Image updated successfully"));
+
+        assertEquals(adRepository.getAdById(adId).orElseThrow().getImage().getFileName(), "ad2-image.png");
+    }
+
+    @Test
+    @DisplayName("Обновление картинки объявления по id объявления, неавторизованным пользователем. Код ответа 401")
+    void givenImageAndAdIdUnauthorizedUser_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+        Integer adId = 1;
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads/{id}/image", adId)
+                        .file(image)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(request -> {
+                            request.setMethod("PATCH");
+                            return request;
+                        }))
+
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+
+        assertEquals(adRepository.getAdById(adId).orElseThrow().getImage().getFileName(), "ad1-image.png");
+    }
+
+    @Test
+    @DisplayName("Обновление картинки объявления по id объявления, не создателем объявления. Код ответа 401")
+    void givenImageAndAdIdNonCreatorUser_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+        Integer adId = 1;
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads/{id}/image", adId)
+                        .file(image)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .with(request -> {
+                            request.setMethod("PATCH");
+                            return request;
+                        }))
+
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+
+        assertEquals(adRepository.getAdById(adId).orElseThrow().getImage().getFileName(), "ad1-image.png");
+    }
+
+    @Test
+    @DisplayName("Добавление объявления юзером. Код ответа 200")
+    void givenImageAndJSON_whenAddAd_thenReturnIsOk() throws Exception {
+
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("description", description);
+        jsonObject.put("price", price);
+        jsonObject.put("title", "user title");
+
+        MockMultipartFile body = new MockMultipartFile(
+                "properties",
+                "jsonObject",
+                MediaType.APPLICATION_JSON_VALUE,
+                jsonObject.toJSONString().getBytes()
+        );
+
+        int adCount = adRepository.findAll().size();
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads")
+                        .file(image)
+                        .file(body)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .header(HttpHeaders.AUTHORIZATION,
+                                "Basic " + HttpHeaders.encodeBasicAuth(
+                                        "user1@gmail.com",
+                                        "password", StandardCharsets.UTF_8)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(adCount + 1);
+        assertThat(adRepository.findAll().stream()
+                .filter(ad -> ad.getTitle().equals("user title"))
+                .findFirst().orElseThrow().getUser().getFirstName()).isEqualTo("User1FirstName");
+    }
+
+    @Test
+    @DisplayName("Добавление объявления админом. Код ответа 200")
+    void givenImageAndJSONRoleAdmin_whenAddAd_thenReturnIsOk() throws Exception {
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("description", description);
+        jsonObject.put("price", price);
+        jsonObject.put("title", "admin title");
+
+        MockMultipartFile body = new MockMultipartFile(
+                "properties",
+                "jsonObject",
+                MediaType.APPLICATION_JSON_VALUE,
+                jsonObject.toJSONString().getBytes()
+        );
+
+        int adCount = adRepository.findAll().size();
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads")
+                        .file(image)
+                        .file(body)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .header(HttpHeaders.AUTHORIZATION,
+                                "Basic " + HttpHeaders.encodeBasicAuth(
+                                        "admin@gmail.com",
+                                        "password", StandardCharsets.UTF_8)))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        assertThat(adRepository.findAll().size()).isEqualTo(adCount + 1);
+        assertThat(adRepository.findAll().stream()
+                .filter(ad -> ad.getTitle().equals("admin title"))
+                .findFirst().orElseThrow().getUser().getFirstName()).isEqualTo("AdminFirstName");
+    }
+
+    @Test
+    @DisplayName("Добавление объявления неавторизованным пользователем. Код ответа 401")
+    void givenImageAndJSONUnauthorizedUser_whenAddAd_thenReturnIsUnauthorized() throws Exception {
+
+        ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
+
+        MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "ad2-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                resource.getInputStream().readAllBytes()
+        );
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("description", description);
+        jsonObject.put("price", price);
+        jsonObject.put("title", title);
+
+        MockMultipartFile body = new MockMultipartFile(
+                "properties",
+                "jsonObject",
+                MediaType.APPLICATION_JSON_VALUE,
+                jsonObject.toJSONString().getBytes()
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart("/ads")
+                        .file(image)
+                        .file(body)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 }
