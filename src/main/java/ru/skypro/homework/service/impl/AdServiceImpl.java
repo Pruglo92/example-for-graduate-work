@@ -48,7 +48,9 @@ public class AdServiceImpl implements AdService {
     public void removeAd(Integer id) {
         log.info("Was invoked method for : removeAd");
 
-        adRepository.removeAdById(id);
+        Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
+        adRepository.delete(ad);
+
     }
 
     /**
