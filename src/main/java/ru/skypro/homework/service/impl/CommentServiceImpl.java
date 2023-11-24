@@ -17,7 +17,6 @@ import ru.skypro.homework.exceptions.CommentNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.CommentRepository;
-import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.CommentService;
 import ru.skypro.homework.utils.AuthUtils;
 
@@ -32,8 +31,8 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final AdRepository adRepository;
     private final CommentMapper commentMapper;
     private final AuthUtils authUtils;
@@ -56,7 +55,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentMapper.createCommentDtoToEntity(
                 getAdByAdId(adId),
                 createOrUpdateCommentDto,
-                authUtils.getUserFromAuthentication(userRepository));
+                authUtils.getUserFromAuthentication());
         commentRepository.save(comment);
         return commentMapper.entityToCommentDto(comment);
     }
@@ -139,11 +138,16 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(AdNotFoundException::new);
     }
 
+    /**
+     * Возвращает комментарий по его идентификатору.
+     *
+     * @param commentId идентификатор комментария
+     * @return комментарий
+     */
     protected Comment getCommentByCommentId(Integer commentId) {
         log.info("Was invoked method for : getCommentByCommentId");
 
         return commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
     }
-
 }
