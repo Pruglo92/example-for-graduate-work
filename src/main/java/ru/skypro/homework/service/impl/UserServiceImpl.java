@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     public void setPassword(final String currentPassword, final String newPassword) {
         log.info("Was invoked method : setPassword");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         if (encoder.matches(currentPassword, user.getPassword())) {
             user.setPassword(encoder.encode(newPassword));
             userRepository.save(user);
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     public UserDto getAuthorizedUser() {
         log.info("Was invoked method for : getAuthorizedUser");
 
-        return userMapper.toDto(authUtils.getUserFromAuthentication(userRepository));
+        return userMapper.toDto(authUtils.getUserFromAuthentication());
     }
 
     /**
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     public UpdateUserDto updateUser(final UpdateUserDto updateUser) {
         log.info("Was invoked method for : updateUser");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         userMapper.updateUserFromDto(user, updateUser);
         var updatedUser = userRepository.save(user);
         return userMapper.updateUserDtoFromUser(updatedUser);
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     public void updateUserImage(final MultipartFile file) {
         log.info("Was invoked method for : UpdateUserImage");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         UserImage image = imageService.updateImage(file, new UserImage());
         user.setUserImage(image);
         userRepository.save(user);

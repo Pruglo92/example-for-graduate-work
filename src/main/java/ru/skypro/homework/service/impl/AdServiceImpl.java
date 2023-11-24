@@ -16,7 +16,6 @@ import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
-import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.utils.AuthUtils;
@@ -32,8 +31,8 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
+
     private final AdRepository adRepository;
-    private final UserRepository userRepository;
     private final AdMapper adMapper;
     private final ImageService imageService;
     private final AuthUtils authUtils;
@@ -64,7 +63,7 @@ public class AdServiceImpl implements AdService {
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
         log.info("Was invoked method for : addAd");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         AdImage image = imageService.updateImage(file, new AdImage());
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
         adRepository.save(ad);
@@ -113,7 +112,7 @@ public class AdServiceImpl implements AdService {
     public AdsDto getAuthorizedUserAds() {
         log.info("Was invoked method for : getAuthorizedUserAds");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         List<Ad> list = adRepository.getAdsByUserId(user.getId());
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
