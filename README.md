@@ -18,9 +18,12 @@
 ### Frontend - функциональность описана в файле [openapi.yaml](openapi.yaml).
 ### Команда для запуска фронтенда:
 ```
-docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.19
+docker run --rm -p 3000:3000 ghcr.io/bizinmitya/front-react-avito:v1.21
 ```
-
+### Команда для сборки образа и запуска приложения в докер контейнере вместе с БД PostgreSQL и фронтендом:
+```
+docker-compose up --build
+```
 <hr>
 
 ### Диаграмма взаимосвязи сущностей:
