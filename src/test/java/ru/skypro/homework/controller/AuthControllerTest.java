@@ -11,6 +11,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.skypro.homework.TestContainerInitializer;
+import ru.skypro.homework.dto.LoginDto;
 import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.enums.Role;
 import ru.skypro.homework.repository.UserRepository;
@@ -33,7 +34,10 @@ public class AuthControllerTest extends TestContainerInitializer {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private static final String email = "test@test.ru";
+    private static final String currentEmail = "user1@gmail.com";
     private static final String password = "12345678";
+
+    private static final String currentPassword = "password";
     private static final String firstName1 = "FirstNameTest1";
     private static final String lastName1 = "LastNameTest1";
     private static final String phone = "+7 (999) 999-99-99";
@@ -146,6 +150,69 @@ public class AuthControllerTest extends TestContainerInitializer {
                     assertThat(currentUser.getLastName()).isNotEqualTo(lastName1);
                     assertThat(currentUser.getPhone()).isNotEqualTo(phone);
                 });
+    }
+
+    @Test
+    @DisplayName("Проверка авторизации, когда пользователь существует и данные введены верно")
+    @Order(4)
+    void givenLoginDto_whenLogin_thenReturnOk() throws Exception {
+        LoginDto loginDto = new LoginDto(currentEmail,currentPassword);
+        String loginJsonString = mapper.writeValueAsString(loginDto);
+
+        // Авторизация пользователя
+        MockHttpServletResponse responsePost = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginJsonString)
+                )
+                .andReturn()
+                .getResponse();
+
+        // Проверка, что отдан успешный код ответа
+        assertThat(responsePost.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    @DisplayName("Проверка авторизации, когда пользователь существует но пароль неверный")
+    @Order(5)
+    void givenLoginDtoWithWrongPassword_whenLogin_thenReturnUnauthorized() throws Exception {
+        LoginDto loginDto = new LoginDto(currentEmail,password);
+        String loginJsonString = mapper.writeValueAsString(loginDto);
+
+        // Авторизация пользователя
+        MockHttpServletResponse responsePost = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginJsonString)
+                )
+                .andReturn()
+                .getResponse();
+
+        // Проверка, что отдан успешный код ответа
+        assertThat(responsePost.getStatus()).isEqualTo(401);
+    }
+
+    @Test
+    @DisplayName("Проверка авторизации, когда такого пользователя не существует")
+    @Order(5)
+    void givenLoginDtoWithNonExistentUser_whenLogin_thenReturnUnauthorized() throws Exception {
+        LoginDto loginDto = new LoginDto(email,password);
+        String loginJsonString = mapper.writeValueAsString(loginDto);
+
+        // Авторизация пользователя
+        MockHttpServletResponse responsePost = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginJsonString)
+                )
+                .andReturn()
+                .getResponse();
+
+        // Проверка, что отдан успешный код ответа
+        assertThat(responsePost.getStatus()).isEqualTo(401);
     }
 
 
