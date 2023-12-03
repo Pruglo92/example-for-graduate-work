@@ -40,6 +40,9 @@ class AdsControllerTest extends TestContainerInitializer {
     private final static String description = "Ad2Description";
     private final static Integer price = 1002;
     private final static String title = "Ad1Title";
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final JSONObject jsonObject = new JSONObject();
+
 
     @Test
     @DisplayName("Получение объявлений авторизованного пользователя. Код ответа 200")
@@ -144,8 +147,6 @@ class AdsControllerTest extends TestContainerInitializer {
     @DisplayName("Изменение объявления создателем объявления. Код ответа 200")
     void givenJSONAndAdCreator_whenPatchAd_thenReturnIsOk() throws Exception {
 
-        JSONObject jsonObject = new JSONObject();
-
         jsonObject.put("description", description);
         jsonObject.put("price", price);
         jsonObject.put("title", title);
@@ -157,7 +158,7 @@ class AdsControllerTest extends TestContainerInitializer {
                                                 "user1@gmail.com",
                                                 "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                                .content(objectMapper.writeValueAsString(jsonObject)))
                 .andExpect(status().isOk());
 
         assertThat(adRepository.getAdById(1).orElseThrow().getDescription()).isEqualTo(description);
@@ -168,8 +169,6 @@ class AdsControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Изменение объявления не создателем объявления. Код ответа 403")
     void givenJSONAndAdNonCreator_whenPatchAd_isForbidden() throws Exception {
-
-        JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("description", description);
         jsonObject.put("price", price);
@@ -182,15 +181,13 @@ class AdsControllerTest extends TestContainerInitializer {
                                                 "user2@gmail.com",
                                                 "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                                .content(objectMapper.writeValueAsString(jsonObject)))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @DisplayName("Изменение объявления админом. Код ответа 200")
     void givenJSONAndRoleAdmin_whenPatchAd_thenReturnIsOk() throws Exception {
-
-        JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("description", description);
         jsonObject.put("price", price);
@@ -203,7 +200,7 @@ class AdsControllerTest extends TestContainerInitializer {
                                                 "admin@gmail.com",
                                                 "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                                .content(objectMapper.writeValueAsString(jsonObject)))
                 .andExpect(status().isOk());
 
         assertThat(adRepository.getAdById(1).orElseThrow().getDescription()).isEqualTo(description);
@@ -214,8 +211,6 @@ class AdsControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Изменение несуществующего объявления админом. Код ответа 404")
     void givenWrongAdIdAndRoleAdmin_whenPatchNonExistentAd_thenReturnIsNotFound() throws Exception {
-
-        JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("description", description);
         jsonObject.put("price", price);
@@ -228,15 +223,13 @@ class AdsControllerTest extends TestContainerInitializer {
                                                 "admin@gmail.com",
                                                 "password", StandardCharsets.UTF_8))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                                .content(objectMapper.writeValueAsString(jsonObject)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("Изменение объявления неавторизованным пользователем. Код ответа 401")
     void givenJSONAndUnauthorizedUser_whenPatchAd_thenReturnIsUnauthorized() throws Exception {
-
-        JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("description", description);
         jsonObject.put("price", price);
@@ -245,13 +238,14 @@ class AdsControllerTest extends TestContainerInitializer {
         mockMvc.perform(
                         patch("/ads/1")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(jsonObject)))
+                                .content(objectMapper.writeValueAsString(jsonObject)))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("Обновление картинки объявления по id объявления, создателем объявления. Код ответа 200")
     void givenImageAndAdIdCreatorUser_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+
         Integer adId = 1;
         ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
         MockMultipartFile image = new MockMultipartFile(
@@ -398,6 +392,7 @@ class AdsControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Обновление картинки объявления по id объявления, неавторизованным пользователем. Код ответа 401")
     void givenImageAndAdIdUnauthorizedUser_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+
         Integer adId = 1;
         ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
         MockMultipartFile image = new MockMultipartFile(
@@ -423,6 +418,7 @@ class AdsControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Обновление картинки объявления по id объявления, не создателем объявления. Код ответа 401")
     void givenImageAndAdIdNonCreatorUser_whenUpdateAdImage_thenReturnIsOk() throws Exception {
+
         Integer adId = 1;
         ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
         MockMultipartFile image = new MockMultipartFile(
@@ -458,7 +454,6 @@ class AdsControllerTest extends TestContainerInitializer {
                 resource.getInputStream().readAllBytes()
         );
 
-        JSONObject jsonObject = new JSONObject();
         jsonObject.put("description", description);
         jsonObject.put("price", price);
         jsonObject.put("title", "user title");
@@ -492,6 +487,7 @@ class AdsControllerTest extends TestContainerInitializer {
     @Test
     @DisplayName("Добавление объявления админом. Код ответа 200")
     void givenImageAndJSONRoleAdmin_whenAddAd_thenReturnIsOk() throws Exception {
+
         ClassPathResource resource = new ClassPathResource("images/ad2-image.png");
 
         MockMultipartFile image = new MockMultipartFile(
@@ -501,7 +497,6 @@ class AdsControllerTest extends TestContainerInitializer {
                 resource.getInputStream().readAllBytes()
         );
 
-        JSONObject jsonObject = new JSONObject();
         jsonObject.put("description", description);
         jsonObject.put("price", price);
         jsonObject.put("title", "admin title");
@@ -545,7 +540,6 @@ class AdsControllerTest extends TestContainerInitializer {
                 resource.getInputStream().readAllBytes()
         );
 
-        JSONObject jsonObject = new JSONObject();
         jsonObject.put("description", description);
         jsonObject.put("price", price);
         jsonObject.put("title", title);
