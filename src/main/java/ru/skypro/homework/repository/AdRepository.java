@@ -11,13 +11,6 @@ import java.util.Optional;
 public interface AdRepository extends JpaRepository<Ad, Integer> {
 
     /**
-     * Удаляет объявление по его идентификатору.
-     *
-     * @param id идентификатор объявления
-     */
-    void removeAdById(Integer id);
-
-    /**
      * Возвращает объявление по его идентификатору.
      *
      * @param id идентификатор объявления

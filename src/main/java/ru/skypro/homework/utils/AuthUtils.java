@@ -18,7 +18,7 @@ public class AuthUtils {
 
     private final UserRepository userRepository;
 
-    public User getUserFromAuthentication(final UserRepository userRepository) {
+    public User getUserFromAuthentication() {
         log.info("Was invoked method for : getUserFromAuthentication");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

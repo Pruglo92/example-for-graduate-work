@@ -16,7 +16,6 @@ import ru.skypro.homework.entity.User;
 import ru.skypro.homework.exceptions.AdNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
-import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.ImageService;
 import ru.skypro.homework.utils.AuthUtils;
@@ -32,8 +31,8 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class AdServiceImpl implements AdService {
+
     private final AdRepository adRepository;
-    private final UserRepository userRepository;
     private final AdMapper adMapper;
     private final ImageService imageService;
     private final AuthUtils authUtils;
@@ -48,7 +47,9 @@ public class AdServiceImpl implements AdService {
     public void removeAd(Integer id) {
         log.info("Was invoked method for : removeAd");
 
-        adRepository.removeAdById(id);
+        Ad ad = adRepository.findById(id).orElseThrow(AdNotFoundException::new);
+        adRepository.delete(ad);
+
     }
 
     /**
@@ -62,7 +63,7 @@ public class AdServiceImpl implements AdService {
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile file) {
         log.info("Was invoked method for : addAd");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         AdImage image = imageService.updateImage(file, new AdImage());
         Ad ad = adMapper.createAdDtoToAd(createOrUpdateAdDto, user, image);
         adRepository.save(ad);
@@ -96,10 +97,10 @@ public class AdServiceImpl implements AdService {
     public AdDto updateAd(Integer id, CreateOrUpdateAdDto createOrUpdateAdDto) throws AdNotFoundException {
         log.info("Was invoked method for : updateAd");
 
-        AdImage image = adRepository.getAdById(id).orElseThrow(AdNotFoundException::new).getImage();
-        Ad ad = adMapper.updateAdDtoToAd(id, createOrUpdateAdDto, getUserByAdId(id), image);
-        adRepository.save(ad);
-        return adMapper.toAdDto(ad);
+        Ad ad = adRepository.getAdById(id).orElseThrow(AdNotFoundException::new);
+        Ad updatedAd = adMapper.updateAdDtoToAd(ad, createOrUpdateAdDto);
+        adRepository.save(updatedAd);
+        return adMapper.toAdDto(updatedAd);
     }
 
     /**
@@ -111,7 +112,7 @@ public class AdServiceImpl implements AdService {
     public AdsDto getAuthorizedUserAds() {
         log.info("Was invoked method for : getAuthorizedUserAds");
 
-        User user = authUtils.getUserFromAuthentication(userRepository);
+        User user = authUtils.getUserFromAuthentication();
         List<Ad> list = adRepository.getAdsByUserId(user.getId());
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
@@ -149,20 +150,5 @@ public class AdServiceImpl implements AdService {
         List<AdDto> adsDtoList = adMapper.toAdsDto(list);
 
         return new AdsDto(adsDtoList.size(), adsDtoList);
-    }
-
-    /**
-     * Получает пользователя по идентификатору объявления.
-     *
-     * @param adId идентификатор объявления
-     * @return объект User, владелец объявления
-     * @throws AdNotFoundException если объявление не найдено
-     */
-    protected User getUserByAdId(Integer adId) {
-        log.info("Was invoked method for : getUserByAdId");
-
-        return adRepository.findById(adId)
-                .orElseThrow(AdNotFoundException::new)
-                .getUser();
     }
 }
